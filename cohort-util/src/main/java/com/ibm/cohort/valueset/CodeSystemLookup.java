@@ -37,7 +37,7 @@ public class CodeSystemLookup {
 			case "EntityNameUse": return "http://terminology.hl7.org/CodeSystem/v3-EntityNameUse";
 			case "HCPCS": return "http://terminology.hl7.org/CodeSystem/HCPCS";
 			case "HCPCS Level I: CPT": return "http://terminology.hl7.org/CodeSystem/HCPCS";
-			case "HCPCS Level II": return "urn:oid:2.16.840.1.113883.6.285";
+			case "HCPCS Level II": return "https://terminology.hl7.org/CodeSystem-hcpcs-Level-II.html";
 			case "HSLOC": return "http://terminology.hl7.org/CodeSystem/hsloc";
 			case "ICD10": return "http://terminology.hl7.org/CodeSystem/icd10";
 			case "ICD10CM": return "http://hl7.org/fhir/sid/icd-10-cm";
