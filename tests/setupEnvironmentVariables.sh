@@ -38,3 +38,6 @@ export FHIR_ENDPOINT="https://fhir-internal.${FHIR_CLUSTER_NAMESPACE}.svc:9443/f
 export FHIR_ENDPOINT_BADPORT="https://fhir-internal.${FHIR_CLUSTER_NAMESPACE}.svc:9444/fhir-server/api/v4"
 export REST_SERVER_ENDPOINT="https://cohort-services-cohort-cohort.${CLUSTER_NAMESPACE}:9443/services/cohort/api"
 export SHADED_JAR="/bzt-configs/tests/src/main/resources/libraries/cohort-cli-shaded.jar"
+
+# imagePullSecret used to pull the fvt test images
+export TEST_IMAGE_PULL_SECRET="all-icr-io"

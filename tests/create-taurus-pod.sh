@@ -18,6 +18,10 @@ sed -i "s/CLUSTER_NAMESPACE_PLACEHOLDER/${CLUSTER_NAMESPACE}/g" ${TEST_DIR}/run-
 sed -i "s/POD_NAME_PLACEHOLDER/${POD_NAME}/g" ${TEST_DIR}/run-engine-taurus-deploy-with-replaced-values.yaml
 sed -i "s|TRUSTSTORE_PLACEHOLDER|${TRUSTSTORE}|" ${TEST_DIR}/run-engine-taurus-deploy-with-replaced-values.yaml
 sed -i "s/TRUSTSTORE_TYPE_PLACEHOLDER/${TRUSTSTORE_TYPE}/" ${TEST_DIR}/run-engine-taurus-deploy-with-replaced-values.yaml
+sed -i "s/TEST_IMAGE_PULL_SECRET_PLACEHOLDER/${TEST_IMAGE_PULL_SECRET}/" ${TEST_DIR}/run-engine-taurus-deploy-with-replaced-values.yaml
+
+# Copy the imagePullSecret used to pull the test image from the default namespace
+. tests/copyImagePullSecret.sh
 
 kubectl -n ${CLUSTER_NAMESPACE} delete pod/${POD_NAME}
 

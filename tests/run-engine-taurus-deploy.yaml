@@ -13,7 +13,7 @@ metadata:
 spec:
   restartPolicy: Never
   imagePullSecrets:
-    - name: all-icr-io
+    - name: TEST_IMAGE_PULL_SECRET_PLACEHOLDER
   containers:
   - name: engine-test-app
     image: us.icr.io/vpc-dev-cohort-rns/taurus-javabridge:1
