@@ -1,0 +1,81 @@
+{
+	"evaluations": [
+		{
+			"descriptor": {
+				"libraryId": "RadiologyProcs",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "Episode",
+			"contextValue": "NA"
+		},
+		{
+			"descriptor": {
+				"libraryId": "EmergencyRoomServices",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "Episode",
+			"contextValue": "NA"
+		},
+		{
+			"descriptor": {
+				"libraryId": "AllowedAmountMed",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "Episode",
+			"contextValue": "NA"
+		},
+		{
+			"descriptor": {
+				"libraryId": "VisitsER",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "Admission",
+			"contextValue": "NA"
+		},
+		{
+			"descriptor": {
+				"libraryId": "AvoidableAdmitHypertension",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "FacilityClaim",
+			"contextValue": "NA"
+		},
+		{
+			"descriptor": {
+				"libraryId": "AvoidableAdmitHypertension",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "ProfessionalClaim",
+			"contextValue": "NA"
+		},
+		{
+			"descriptor": {
+				"libraryId": "AvoidableAdmitHypertension",
+				"version": "1.0.0"
+			},
+			"expressions": [
+				"measureDef"
+			],
+			"contextKey": "DrugClaim",
+			"contextValue": "NA"
+		}
+	]
+}

@@ -2,6 +2,7 @@ package com.ibm.cohort.cql.spark;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +12,7 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.spark.sql.Dataset;
@@ -56,7 +58,7 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
         try( SparkSession spark = initializeSession(useJava8API) ) {
             Dataset<Row> dataset = spark.createDataFrame(sourceData, Patient.class);
             
-            Path tempFile = Paths.get("src/test/resources/testdata/simple", "patient" );
+            Path tempFile = Paths.get("src/test/resources/simple-job/testdata", "patient" );
             dataset.write().format("delta").save(tempFile.toString());
         }
     }
@@ -65,12 +67,12 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
     public void testReadAggregateSuccess() throws Exception {
 
         String [] args = new String[] {
-          "-d", "src/test/resources/jobs/simple/context-definitions.json",
-          "-j", "src/test/resources/jobs/simple/cql-jobs.json",
-          "-m", "src/test/resources/modelinfo/mock-modelinfo-1.0.0.xml",
-          "-c", "src/test/resources/cql",
-          "-i", "Patient=" + new File("src/test/resources/testdata/simple/patient").toURI().toString(),
-          "-o", "Patient=" + new File("target/output/patient_cohort").toURI().toString()
+          "-d", "src/test/resources/simple-job/context-definitions.json",
+          "-j", "src/test/resources/simple-job/cql-jobs.json",
+          "-m", "src/test/resources/simple-job/modelinfo/simple-modelinfo-1.0.0.xml",
+          "-c", "src/test/resources/simple-job/cql",
+          "-i", "Patient=" + new File("src/test/resources/simple-job/testdata/patient").toURI().toString(),
+          "-o", "Patient=" + new File("target/output/simple-job/patient_cohort").toURI().toString()
         };
         
         Java8API useJava8API = Java8API.ENABLED;
@@ -80,30 +82,58 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
             SparkCqlEvaluator.main(args);
         }
     }
+    
+    @Test
+    public void testAllTypesEvaluationSuccess() throws Exception {
+
+        String [] args = new String[] {
+          "-d", "src/test/resources/alltypes/context-definitions.json",
+          "-j", "src/test/resources/alltypes/cql-jobs.json",
+          "-m", "src/test/resources/alltypes/modelinfo/alltypes-modelinfo-1.0.0.xml",
+          "-c", "src/test/resources/alltypes/cql",
+          "-i", "A=" + new File("src/test/resources/alltypes/testdata/test-A.parquet").toURI().toString(),
+          "-i", "B=" + new File("src/test/resources/alltypes/testdata/test-B.parquet").toURI().toString(),
+          "-i", "C=" + new File("src/test/resources/alltypes/testdata/test-C.parquet").toURI().toString(),
+          "-i", "D=" + new File("src/test/resources/alltypes/testdata/test-D.parquet").toURI().toString(),
+          "-o", "Patient=" + new File("target/output/alltypes/Patient_cohort").toURI().toString(),
+          "-o", "A=" + new File("target/output/alltypes/A_cohort").toURI().toString(),
+          "-o", "B=" + new File("target/output/alltypes/B_cohort").toURI().toString(),
+          "-o", "C=" + new File("target/output/alltypes/C_cohort").toURI().toString(),
+          "-o", "D=" + new File("target/output/alltypes/D_cohort").toURI().toString(),
+          "-n", "10"
+        };
+        
+        Java8API useJava8API = Java8API.ENABLED;
+        try( SparkSession spark = initializeSession(useJava8API, Collections.singletonMap("spark.sql.sources.default", "parquet")) ) {
+            evaluator.typeConverter = new SparkTypeConverter(useJava8API.getValue());
+            
+            SparkCqlEvaluator.main(args);
+        }
+    }
 
     @Test
     public void testReadCqlJobs() throws Exception {
-        CqlEvaluationRequests requests = evaluator.readJobSpecification("src/test/resources/jobs/hi-example/cql-jobs.json");
+        CqlEvaluationRequests requests = evaluator.readJobSpecification("src/test/resources/hi-example/cql-jobs.json");
         assertNotNull(requests);
-        assertEquals(1, requests.getEvaluations().size());
-        assertEquals(1, requests.getGlobalParameters().size());
+        assertEquals(7, requests.getEvaluations().size());
+        assertNull(requests.getGlobalParameters());
     }
     
     @Test
     public void testReadContextDefinitions() throws Exception {
-        ContextDefinitions contextDefinitions = evaluator.readContextDefinitions("src/test/resources/jobs/hi-example/context-definitions.json");
+        ContextDefinitions contextDefinitions = evaluator.readContextDefinitions("src/test/resources/hi-example/context-definitions.json");
         assertNotNull(contextDefinitions);
-        assertEquals(4, contextDefinitions.getContextDefinitions().size());
+        assertEquals(5, contextDefinitions.getContextDefinitions().size());
         assertEquals(4, contextDefinitions.getContextDefinitions().get(0).getRelationships().size());
     }
     
     protected CqlLibraryProvider getTestLibraryProvider() throws IOException, FileNotFoundException {
         CqlToElmTranslator translator = new CqlToElmTranslator();
-        try( Reader r = new FileReader(new File("src/test/resources/modelinfo/mock-modelinfo-1.0.0.xml") ) ) {
+        try( Reader r = new FileReader(new File("src/test/resources/hi-example/modelinfo/mock-modelinfo-1.0.0.xml") ) ) {
             translator.registerModelInfo(r);
         }
         
-        CqlLibraryProvider libraryProvider = new DirectoryBasedCqlLibraryProvider(new File("src/test/resources/cql"));
+        CqlLibraryProvider libraryProvider = new DirectoryBasedCqlLibraryProvider(new File("src/test/resources/hi-example/cql"));
         CqlLibraryProvider translatingProvider = new TranslatingCqlLibraryProvider(libraryProvider, translator);
         return translatingProvider;
     }

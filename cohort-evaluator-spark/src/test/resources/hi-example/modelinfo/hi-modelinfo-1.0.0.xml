@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modelInfo xmlns="urn:hl7-org:elm-modelinfo:r1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="HealthInsights"
+	version="0.0.1" url="http://ibm.com/health-insights"
+	targetQualifier="health-insights" patientClassName="A"
+	patientBirthDatePropertyName="none">
+	<typeInfo namespace="HealthInsights" name="Admission"
+		identifier="http://ibm.com/health-insights/Admission"
+		label="Admission" retrievable="true" xsi:type="ClassInfo">
+		<element name="admission_id " elementType="System.String" />
+		<element name="batch_id" elementType="System.String" />
+		<element name="person_id" elementType="System.String" />
+		<element name="adm_orig_admit_dt" elementType="System.DateTime" />
+		<element name="adm_days_last_cnt" elementType="System.String" />
+		<element name="adm_place_grp_cd" elementType="String" />
+		<element name="dx_cd" elementType="System.String" />
+		<element name="dx_cd2" elementType="System.String" />
+		<element name="dx_cd3" elementType="System.String" />
+		<element name="dx_cd4" elementType="System.String" />
+		<element name="dx_cd5" elementType="System.String" />
+		<element name="dx_cd6" elementType="System.String" />
+		<element name="dx_cd7" elementType="System.String" />
+		<element name="dx_cd8" elementType="System.String" />
+		<element name="dx_cd9" elementType="System.String" />
+		<element name="dx_cd10" elementType="System.String" />
+		<element name="dx_cd11" elementType="System.String" />
+		<element name="dx_cd12" elementType="System.String" />
+		<element name="dx_cd13" elementType="System.String" />
+		<element name="dx_cd14" elementType="System.String" />
+		<element name="dx_cd15" elementType="System.String" />
+		<element name="dx_cd16" elementType="System.String" />
+		<element name="dx_cd17" elementType="System.String" />
+		<element name="dx_cd18" elementType="System.String" />
+		<element name="dx_cd19" elementType="System.String" />
+		<element name="dx_cd10" elementType="System.String" />
+		<element name="dx_cd11" elementType="System.String" />
+		<element name="dx_cd12" elementType="System.String" />
+		<element name="dx_cd13" elementType="System.String" />
+		<element name="dx_cd14" elementType="System.String" />
+		<element name="dx_cd15" elementType="System.String" />
+		<element name="dx_cd16" elementType="System.String" />
+		<element name="dx_cd17" elementType="System.String" />
+		<element name="dx_cd18" elementType="System.String" />
+		<element name="dx_cd19" elementType="System.String" />
+		<element name="dx_cd20" elementType="System.String" />
+		<element name="dx_cd21" elementType="System.String" />
+		<element name="dx_cd22" elementType="System.String" />
+		<element name="dx_cd23" elementType="System.String" />
+		<element name="dx_cd24" elementType="System.String" />
+		<element name="dx_cd25" elementType="System.String" />
+		<element name="dx_cd26" elementType="System.String" />
+		<element name="dx_cd27" elementType="System.String" />
+		<element name="dx_cd28" elementType="System.String" />
+		<element name="dx_cd29" elementType="System.String" />
+		<element name="dx_cd30" elementType="System.String" />
+		<element name="dx_cd31" elementType="System.String" />
+		<element name="dx_cd32" elementType="System.String" />
+		<element name="dx_cd33" elementType="System.String" />
+		<element name="dx_cd34" elementType="System.String" />
+		<element name="dx_cd35" elementType="System.String" />
+		<element name="dx_cd36" elementType="System.String" />
+		<element name="dx_cd37" elementType="System.String" />
+		<element name="dx_cd38" elementType="System.String" />
+		<element name="dx_cd39" elementType="System.String" />
+		<element name="dx_cd40" elementType="System.String" />
+		<element name="dx_cd41" elementType="System.String" />
+		<element name="dx_cd42" elementType="System.String" />
+		<element name="dx_cd43" elementType="System.String" />
+		<element name="dx_cd44" elementType="System.String" />
+		<element name="dx_cd45" elementType="System.String" />
+		<element name="dx_cd46" elementType="System.String" />
+		<element name="dx_cd47" elementType="System.String" />
+		<element name="dx_cd48" elementType="System.String" />
+		<element name="dx_cd49" elementType="System.String" />
+		<element name="dx_cd50" elementType="System.String" />
+		<element name="proc_cd" elementType="System.String" />
+		<element name="proc_cd2" elementType="System.String" />
+		<element name="proc_cd3" elementType="System.String" />
+		<element name="proc_cd4" elementType="System.String" />
+		<element name="proc_cd5" elementType="System.String" />
+		<element name="proc_cd6" elementType="System.String" />
+		<element name="proc_cd7" elementType="System.String" />
+		<element name="proc_cd8" elementType="System.String" />
+		<element name="proc_cd9" elementType="System.String" />
+		<element name="proc_cd10" elementType="System.String" />
+		<element name="proc_cd11" elementType="System.String" />
+		<element name="proc_cd12" elementType="System.String" />
+		<element name="proc_cd13" elementType="System.String" />
+		<element name="proc_cd14" elementType="System.String" />
+		<element name="proc_cd15" elementType="System.String" />
+		<element name="proc_cd16" elementType="System.String" />
+		<element name="proc_cd17" elementType="System.String" />
+		<element name="proc_cd18" elementType="System.String" />
+		<element name="proc_cd19" elementType="System.String" />
+		<element name="proc_cd10" elementType="System.String" />
+		<element name="proc_cd11" elementType="System.String" />
+		<element name="proc_cd12" elementType="System.String" />
+		<element name="proc_cd13" elementType="System.String" />
+		<element name="proc_cd14" elementType="System.String" />
+		<element name="proc_cd15" elementType="System.String" />
+		<element name="proc_cd16" elementType="System.String" />
+		<element name="proc_cd17" elementType="System.String" />
+		<element name="proc_cd18" elementType="System.String" />
+		<element name="proc_cd19" elementType="System.String" />
+		<element name="proc_cd20" elementType="System.String" />
+		<element name="proc_cd21" elementType="System.String" />
+		<element name="proc_cd22" elementType="System.String" />
+		<element name="proc_cd23" elementType="System.String" />
+		<element name="proc_cd24" elementType="System.String" />
+		<element name="proc_cd25" elementType="System.String" />
+		<element name="proc_cd26" elementType="System.String" />
+		<element name="proc_cd27" elementType="System.String" />
+		<element name="proc_cd28" elementType="System.String" />
+		<element name="proc_cd29" elementType="System.String" />
+		<element name="proc_cd30" elementType="System.String" />
+		<element name="proc_cd31" elementType="System.String" />
+		<element name="proc_cd32" elementType="System.String" />
+		<element name="proc_cd33" elementType="System.String" />
+		<element name="proc_cd34" elementType="System.String" />
+		<element name="proc_cd35" elementType="System.String" />
+		<element name="proc_cd36" elementType="System.String" />
+		<element name="proc_cd37" elementType="System.String" />
+		<element name="proc_cd38" elementType="System.String" />
+		<element name="proc_cd39" elementType="System.String" />
+		<element name="proc_cd40" elementType="System.String" />
+		<element name="proc_cd41" elementType="System.String" />
+		<element name="proc_cd42" elementType="System.String" />
+		<element name="proc_cd43" elementType="System.String" />
+		<element name="proc_cd44" elementType="System.String" />
+		<element name="proc_cd45" elementType="System.String" />
+		<element name="proc_cd46" elementType="System.String" />
+		<element name="proc_cd47" elementType="System.String" />
+		<element name="proc_cd48" elementType="System.String" />
+		<element name="proc_cd49" elementType="System.String" />
+		<element name="proc_cd50" elementType="System.String" />
+		<element name="mdc_cd" elementType="System.String" />
+	</typeInfo>
+
+	<typeInfo namespace="HealthInsights" name="Episode"
+		identifier="http://ibm.com/health-insights/Episode" label="Episode"
+		retrievable="true" xsi:type="ClassInfo">
+		<element name="episode_id " elementType="System.String" />
+		<element name="batch_id" elementType="System.String" />
+		<element name="person_id" elementType="System.String" />
+		<element name="epi_first_svc_dt" elementType="System.DateTime" />
+		<element name="epi_tot_allow_amt" elementType="System.String" />
+		<element name="epi_rx_allow_amt" elementType="String" />
+		<element name="epi_type_cd" elementType="System.String" />
+		<element name="epi_sum_grp_cd" elementType="System.String" />
+	</typeInfo>
+
+	<typeInfo namespace="HealthInsights" name="DrugClaim"
+		identifier="http://ibm.com/health-insights/DrugClaim"
+		label="DrugClaim" retrievable="true" xsi:type="ClassInfo">
+		<element name="clm_record_id " elementType="System.String" />
+		<element name="source_file_id" elementType="System.String" />
+		<element name="batch_id" elementType="System.String" />
+		<element name="person_id" elementType="System.String" />
+		<element name="first_svc_dt" elementType="System.DateTime" />
+		<element name="paid_dt" elementType="System.DateTime" />
+		<element name="chg_allow_amt" elementType="System.Decimal" />
+		<element name="net_pay_amt" elementType="System.Decimal" />
+		<element name="mdst_place_cd" elementType="System.String" />
+		<element name="mdst_claim_type_cd" elementType="System.String" />
+		<element name="mdst_svc_subcat_cd" elementType="System.String" />
+		<element name="ndc_nbr_cd" elementType="System.String" />
+		<element name="maint_drug_cd" elementType="System.String" />
+	</typeInfo>
+
+	<typeInfo namespace="HealthInsights" name="FacilityClaim"
+		identifier="http://ibm.com/health-insights/FacilityClaim"
+		label="FacilityClaim" retrievable="true" xsi:type="ClassInfo">
+		<element name="clm_record_id " elementType="System.String" />
+		<element name="source_file_id" elementType="System.String" />
+		<element name="batch_id" elementType="System.String" />
+		<element name="person_id" elementType="System.String" />
+		<element name="first_svc_dt" elementType="System.DateTime" />
+		<element name="paid_dt" elementType="System.DateTime" />
+		<element name="chg_allow_amt" elementType="System.Decimal" />
+		<element name="net_pay_amt" elementType="System.Decimal" />
+		<element name="mdst_place_cd" elementType="System.String" />
+		<element name="mdst_claim_type_cd" elementType="System.String" />
+		<element name="mdst_place_grp_cd" elementType="System.String" />
+		<element name="dx_cd" elementType="System.String" />
+		<element name="dx_cd2" elementType="System.String" />
+		<element name="dx_cd3" elementType="System.String" />
+		<element name="dx_cd4" elementType="System.String" />
+		<element name="dx_cd5" elementType="System.String" />
+		<element name="dx_cd6" elementType="System.String" />
+		<element name="dx_cd7" elementType="System.String" />
+		<element name="dx_cd8" elementType="System.String" />
+		<element name="dx_cd9" elementType="System.String" />
+		<element name="dx_cd10" elementType="System.String" />
+		<element name="dx_cd11" elementType="System.String" />
+		<element name="dx_cd12" elementType="System.String" />
+		<element name="dx_cd13" elementType="System.String" />
+		<element name="dx_cd14" elementType="System.String" />
+		<element name="dx_cd15" elementType="System.String" />
+		<element name="dx_cd16" elementType="System.String" />
+		<element name="dx_cd17" elementType="System.String" />
+		<element name="dx_cd18" elementType="System.String" />
+		<element name="dx_cd19" elementType="System.String" />
+		<element name="dx_cd10" elementType="System.String" />
+		<element name="dx_cd11" elementType="System.String" />
+		<element name="dx_cd12" elementType="System.String" />
+		<element name="dx_cd13" elementType="System.String" />
+		<element name="dx_cd14" elementType="System.String" />
+		<element name="dx_cd15" elementType="System.String" />
+		<element name="dx_cd16" elementType="System.String" />
+		<element name="dx_cd17" elementType="System.String" />
+		<element name="dx_cd18" elementType="System.String" />
+		<element name="dx_cd19" elementType="System.String" />
+		<element name="dx_cd20" elementType="System.String" />
+		<element name="dx_cd21" elementType="System.String" />
+		<element name="dx_cd22" elementType="System.String" />
+		<element name="dx_cd23" elementType="System.String" />
+		<element name="dx_cd24" elementType="System.String" />
+		<element name="dx_cd25" elementType="System.String" />
+		<element name="proc_cd" elementType="System.String" />
+		<element name="proc_cd2" elementType="System.String" />
+		<element name="proc_cd3" elementType="System.String" />
+		<element name="proc_cd4" elementType="System.String" />
+		<element name="proc_cd5" elementType="System.String" />
+		<element name="proc_cd6" elementType="System.String" />
+		<element name="proc_cd7" elementType="System.String" />
+		<element name="proc_cd8" elementType="System.String" />
+		<element name="proc_cd9" elementType="System.String" />
+		<element name="proc_cd10" elementType="System.String" />
+		<element name="proc_cd11" elementType="System.String" />
+		<element name="proc_cd12" elementType="System.String" />
+		<element name="proc_cd13" elementType="System.String" />
+		<element name="proc_cd14" elementType="System.String" />
+		<element name="proc_cd15" elementType="System.String" />
+		<element name="proc_cd16" elementType="System.String" />
+		<element name="proc_cd17" elementType="System.String" />
+		<element name="proc_cd18" elementType="System.String" />
+		<element name="proc_cd19" elementType="System.String" />
+		<element name="proc_cd10" elementType="System.String" />
+		<element name="proc_cd11" elementType="System.String" />
+		<element name="proc_cd12" elementType="System.String" />
+		<element name="proc_cd13" elementType="System.String" />
+		<element name="proc_cd14" elementType="System.String" />
+		<element name="proc_cd15" elementType="System.String" />
+		<element name="proc_cd16" elementType="System.String" />
+		<element name="proc_cd17" elementType="System.String" />
+		<element name="proc_cd18" elementType="System.String" />
+		<element name="proc_cd19" elementType="System.String" />
+		<element name="proc_cd20" elementType="System.String" />
+		<element name="proc_cd21" elementType="System.String" />
+		<element name="proc_cd22" elementType="System.String" />
+		<element name="proc_cd23" elementType="System.String" />
+		<element name="proc_cd24" elementType="System.String" />
+		<element name="proc_cd25" elementType="System.String" />
+		<element name="proc_group_cd" elementType="System.String" />
+		<element name="fac_revenue_cd" elementType="System.String" />
+		<element name="mdc_cd" elementType="System.String" />
+		<element name="mdst_svc_subcat_cd" elementType="System.String" />
+	</typeInfo>
+
+	<typeInfo namespace="HealthInsights" name="ProfessionalClaim"
+		identifier="http://ibm.com/health-insights/ProfessionalClaim"
+		label="FacilityClaim" retrievable="true" xsi:type="ClassInfo">
+		<element name="clm_record_id " elementType="System.String" />
+		<element name="source_file_id" elementType="System.String" />
+		<element name="batch_id" elementType="System.String" />
+		<element name="person_id" elementType="System.String" />
+		<element name="first_svc_dt" elementType="System.DateTime" />
+		<element name="paid_dt" elementType="System.DateTime" />
+		<element name="chg_allow_amt" elementType="System.Decimal" />
+		<element name="net_pay_amt" elementType="System.Decimal" />
+		<element name="mdst_place_cd" elementType="System.String" />
+		<element name="mdst_claim_type_cd" elementType="System.String" />
+		<element name="dx_cd" elementType="System.String" />
+		<element name="dx_cd2" elementType="System.String" />
+		<element name="dx_cd3" elementType="System.String" />
+		<element name="dx_cd4" elementType="System.String" />
+		<element name="dx_cd5" elementType="System.String" />
+		<element name="dx_cd6" elementType="System.String" />
+		<element name="dx_cd7" elementType="System.String" />
+		<element name="dx_cd8" elementType="System.String" />
+		<element name="dx_cd9" elementType="System.String" />
+		<element name="dx_cd10" elementType="System.String" />
+		<element name="dx_cd11" elementType="System.String" />
+		<element name="dx_cd12" elementType="System.String" />
+		<element name="dx_cd13" elementType="System.String" />
+		<element name="dx_cd14" elementType="System.String" />
+		<element name="dx_cd15" elementType="System.String" />
+		<element name="dx_cd16" elementType="System.String" />
+		<element name="dx_cd17" elementType="System.String" />
+		<element name="dx_cd18" elementType="System.String" />
+		<element name="dx_cd19" elementType="System.String" />
+		<element name="dx_cd10" elementType="System.String" />
+		<element name="dx_cd11" elementType="System.String" />
+		<element name="dx_cd12" elementType="System.String" />
+		<element name="dx_cd13" elementType="System.String" />
+		<element name="dx_cd14" elementType="System.String" />
+		<element name="dx_cd15" elementType="System.String" />
+		<element name="dx_cd16" elementType="System.String" />
+		<element name="dx_cd17" elementType="System.String" />
+		<element name="dx_cd18" elementType="System.String" />
+		<element name="dx_cd19" elementType="System.String" />
+		<element name="dx_cd20" elementType="System.String" />
+		<element name="dx_cd21" elementType="System.String" />
+		<element name="dx_cd22" elementType="System.String" />
+		<element name="dx_cd23" elementType="System.String" />
+		<element name="dx_cd24" elementType="System.String" />
+		<element name="dx_cd25" elementType="System.String" />
+		<element name="proc_cd" elementType="System.String" />
+		<element name="proc_cd2" elementType="System.String" />
+		<element name="proc_cd3" elementType="System.String" />
+		<element name="proc_cd4" elementType="System.String" />
+		<element name="proc_cd5" elementType="System.String" />
+		<element name="proc_cd6" elementType="System.String" />
+		<element name="proc_cd7" elementType="System.String" />
+		<element name="proc_cd8" elementType="System.String" />
+		<element name="proc_cd9" elementType="System.String" />
+		<element name="proc_cd10" elementType="System.String" />
+		<element name="proc_cd11" elementType="System.String" />
+		<element name="proc_cd12" elementType="System.String" />
+		<element name="proc_cd13" elementType="System.String" />
+		<element name="proc_cd14" elementType="System.String" />
+		<element name="proc_cd15" elementType="System.String" />
+		<element name="proc_cd16" elementType="System.String" />
+		<element name="proc_cd17" elementType="System.String" />
+		<element name="proc_cd18" elementType="System.String" />
+		<element name="proc_cd19" elementType="System.String" />
+		<element name="proc_cd10" elementType="System.String" />
+		<element name="proc_cd11" elementType="System.String" />
+		<element name="proc_cd12" elementType="System.String" />
+		<element name="proc_cd13" elementType="System.String" />
+		<element name="proc_cd14" elementType="System.String" />
+		<element name="proc_cd15" elementType="System.String" />
+		<element name="proc_cd16" elementType="System.String" />
+		<element name="proc_cd17" elementType="System.String" />
+		<element name="proc_cd18" elementType="System.String" />
+		<element name="proc_cd19" elementType="System.String" />
+		<element name="proc_cd20" elementType="System.String" />
+		<element name="proc_cd21" elementType="System.String" />
+		<element name="proc_cd22" elementType="System.String" />
+		<element name="proc_cd23" elementType="System.String" />
+		<element name="proc_cd24" elementType="System.String" />
+		<element name="proc_cd25" elementType="System.String" />
+		<element name="proc_group_cd" elementType="System.String" />
+		<element name="fac_revenue_cd" elementType="System.String" />
+		<element name="mdst_svc_subcat_cd" elementType="System.String" />
+		<element name="mdst_place_grp_cd" elementType="System.String" />
+	</typeInfo>
+
+	<contextInfo name="Admission" keyElement="admission_id"
+		birthDateElement="NA">
+		<contextType modelName="HealthInsights"
+			namespace="HealthInsights" name="Admission" />
+	</contextInfo>
+
+	<contextInfo name="Episode" keyElement="episode_id" birthDateElement="NA">
+		<contextType modelName="HealthInsights"
+			namespace="HealthInsights" name="Episode" />
+	</contextInfo>
+
+	<contextInfo name="ProfessionalClaim" keyElement="clm_record_id" birthDateElement="NA">
+		<contextType modelName="HealthInsights"
+			namespace="HealthInsights" name="ProfessionalClaim" />
+	</contextInfo>
+
+	<contextInfo name="FacilityClaim" keyElement="clm_record_id" birthDateElement="NA">
+		<contextType modelName="HealthInsights"
+			namespace="HealthInsights" name="FacilityClaim" />
+	</contextInfo>
+
+	<contextInfo name="DrugClaim" keyElement="clm_record_id"
+		birthDateElement="NA">
+		<contextType modelName="HealthInsights"
+			namespace="HealthInsights" name="DrugClaim" />
+	</contextInfo>
+</modelInfo>
