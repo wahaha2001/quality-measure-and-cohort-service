@@ -155,6 +155,7 @@ public class SparkCqlEvaluator implements Serializable {
                 out.println(String.format("Wrote results for context %s to %s", context.getName(), outputPath));
 
                 contextAccum.add(1);
+                perContextAccum.reset();
             }
         }
     }
