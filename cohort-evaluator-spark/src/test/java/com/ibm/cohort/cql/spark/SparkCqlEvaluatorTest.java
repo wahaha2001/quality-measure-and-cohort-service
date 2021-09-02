@@ -86,20 +86,29 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
     @Test
     public void testAllTypesEvaluationSuccess() throws Exception {
 
+        File inputDir = new File("src/test/resources/alltypes/");
+        File outputDir = new File("target/output/alltypes/");
+        
+        File patientFile = new File(outputDir, "Patient_cohort");
+        File aFile = new File(outputDir, "A_cohort");
+        File bFile = new File(outputDir, "B_cohort");
+        File cFile = new File(outputDir, "C_cohort");
+        File dFile = new File(outputDir, "D_cohort");
+        
         String [] args = new String[] {
           "-d", "src/test/resources/alltypes/context-definitions.json",
           "-j", "src/test/resources/alltypes/cql-jobs.json",
           "-m", "src/test/resources/alltypes/modelinfo/alltypes-modelinfo-1.0.0.xml",
           "-c", "src/test/resources/alltypes/cql",
-          "-i", "A=" + new File("src/test/resources/alltypes/testdata/test-A.parquet").toURI().toString(),
-          "-i", "B=" + new File("src/test/resources/alltypes/testdata/test-B.parquet").toURI().toString(),
-          "-i", "C=" + new File("src/test/resources/alltypes/testdata/test-C.parquet").toURI().toString(),
-          "-i", "D=" + new File("src/test/resources/alltypes/testdata/test-D.parquet").toURI().toString(),
-          "-o", "Patient=" + new File("target/output/alltypes/Patient_cohort").toURI().toString(),
-          "-o", "A=" + new File("target/output/alltypes/A_cohort").toURI().toString(),
-          "-o", "B=" + new File("target/output/alltypes/B_cohort").toURI().toString(),
-          "-o", "C=" + new File("target/output/alltypes/C_cohort").toURI().toString(),
-          "-o", "D=" + new File("target/output/alltypes/D_cohort").toURI().toString(),
+          "-i", "A=" + new File(inputDir, "testdata/test-A.parquet").toURI().toString(),
+          "-i", "B=" + new File(inputDir, "testdata/test-B.parquet").toURI().toString(),
+          "-i", "C=" + new File(inputDir, "testdata/test-C.parquet").toURI().toString(),
+          "-i", "D=" + new File(inputDir, "testdata/test-D.parquet").toURI().toString(),
+          "-o", "Patient=" + patientFile.toURI().toString(),
+          "-o", "A=" + aFile.toURI().toString(),
+          "-o", "B=" + bFile.toURI().toString(),
+          "-o", "C=" + cFile.toURI().toString(),
+          "-o", "D=" + dFile.toURI().toString(),
           "-n", "10"
         };
         

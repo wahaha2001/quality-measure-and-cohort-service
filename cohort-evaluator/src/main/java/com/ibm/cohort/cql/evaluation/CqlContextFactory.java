@@ -104,6 +104,7 @@ public class CqlContextFactory {
         cqlContext.setExpressionCaching(this.cacheExpressions);
 
         // TODO - Input parameters
+        // cqlContext.setContextValue(key, value);
         // cqlContext.setParameter(null, name, value);
 
         return cqlContext;

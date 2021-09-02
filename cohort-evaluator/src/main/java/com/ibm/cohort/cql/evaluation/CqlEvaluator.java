@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.cqframework.cql.elm.execution.IncludeDef;
 import org.opencds.cqf.cql.engine.execution.Context;
 
 import com.ibm.cohort.cql.data.CqlDataProvider;
@@ -71,10 +72,33 @@ public class CqlEvaluator {
 
     
     public CqlEvaluationResult evaluate( CqlLibraryDescriptor topLevelLibrary, Map<String,Object> parameters, Pair<String,String> context, Set<String> expressions, CqlDebug debug) throws CqlLibraryDeserializationException {
+        // TODO - the CQL Context initialization is expensive due to deserialization of UCUM XML content. We need a way to cache
+        // these for reuse.
         Context cqlContext = new CqlContextFactory().setDebug(debug).createContext(libraryProvider, topLevelLibrary, terminologyProvider, dataProvider);
         
         if( expressions == null ) {
             expressions = cqlContext.getCurrentLibrary().getStatements().getDef().stream().map( d -> d.getName() ).collect(Collectors.toSet());
+        }
+        
+        if( context != null ) {
+            cqlContext.setContextValue(context.getLeft(), context.getRight());
+        }
+        
+        if( parameters != null ) {
+            org.cqframework.cql.elm.execution.Library library = cqlContext.getCurrentLibrary();
+            
+            for( Map.Entry<String,Object> entry : parameters.entrySet() ) {
+                cqlContext.setParameter(library.getLocalId(), entry.getKey(), entry.getValue());
+            }
+            
+            if (library.getIncludes() != null && library.getIncludes().getDef() != null) {
+                for (IncludeDef def : library.getIncludes().getDef()) {
+                    String name = def.getLocalIdentifier();
+                    for (Map.Entry<String, Object> parameterValue : parameters.entrySet()) {
+                        cqlContext.setParameter(name, parameterValue.getKey(), parameterValue.getValue());
+                    }
+                }
+            }
         }
         
         Map<String,Object> results = new HashMap<>();
