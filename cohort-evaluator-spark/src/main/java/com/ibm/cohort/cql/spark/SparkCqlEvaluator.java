@@ -7,7 +7,9 @@
 package com.ibm.cohort.cql.spark;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Serializable;
@@ -41,8 +43,10 @@ import com.ibm.cohort.cql.evaluation.CqlEvaluationRequest;
 import com.ibm.cohort.cql.evaluation.CqlEvaluationRequests;
 import com.ibm.cohort.cql.evaluation.CqlEvaluationResult;
 import com.ibm.cohort.cql.evaluation.CqlEvaluator;
+import com.ibm.cohort.cql.library.ClasspathCqlLibraryProvider;
 import com.ibm.cohort.cql.library.CqlLibraryProvider;
-import com.ibm.cohort.cql.library.fs.DirectoryBasedCqlLibraryProvider;
+import com.ibm.cohort.cql.library.DirectoryBasedCqlLibraryProvider;
+import com.ibm.cohort.cql.library.PriorityCqlLibraryProvider;
 import com.ibm.cohort.cql.spark.aggregation.ContextDefinition;
 import com.ibm.cohort.cql.spark.aggregation.ContextDefinitions;
 import com.ibm.cohort.cql.spark.aggregation.Join;
@@ -120,6 +124,7 @@ public class SparkCqlEvaluator implements Serializable {
 
     protected static ThreadLocal<CqlEvaluationRequests> jobSpecification = new ThreadLocal<>();
     protected static ThreadLocal<CqlLibraryProvider> libraryProvider = new ThreadLocal<>();
+    protected static ThreadLocal<CqlTerminologyProvider> terminologyProvider = new ThreadLocal<>();
 
     public void run(PrintStream out) throws Exception {
 
@@ -303,28 +308,25 @@ public class SparkCqlEvaluator implements Serializable {
             LongAccumulator perContextAccum) throws Exception {
         CqlLibraryProvider provider = libraryProvider.get();
         if (provider == null) {
-            CqlLibraryProvider fsBasedLp = new DirectoryBasedCqlLibraryProvider(new File(cqlPath));
-
-            // TODO - replace with cohort shared translation component
-            final CqlToElmTranslator translator = new CqlToElmTranslator();
-            if (modelInfoPaths != null && modelInfoPaths.size() > 0) {
-                for (String path : modelInfoPaths) {
-                    try (Reader r = new FileReader(path)) {
-                        translator.registerModelInfo(r);
-                    }
-                }
-            }
-            provider = new TranslatingCqlLibraryProvider(fsBasedLp, translator);
+            provider = createLibraryProvider();
             libraryProvider.set(provider);
         }
-
-        return evaluate(provider, contextName, rowsByContext, perContextAccum);
+        
+        CqlTerminologyProvider termProvider = terminologyProvider.get();
+        if( termProvider == null ) {
+            termProvider = createTerminologyProvider();
+            terminologyProvider.set(termProvider);
+        }
+        
+        return evaluate(provider, termProvider, contextName, rowsByContext, perContextAccum);
     }
+
 
     /**
      * Evaluate the input CQL for a single context + data pair.
      * 
      * @param libraryProvider Library provider providing CQL/ELM content
+     * @param termProvider    Terminology provider providing terminology resources
      * @param contextName     Context name corresponding to the library context key
      *                        currently under evaluation.
      * @param rowsByContext   Data for a single evaluation context
@@ -336,9 +338,9 @@ public class SparkCqlEvaluator implements Serializable {
      *         between libraries (e.g. LibraryName.ExpressionName).
      * @throws Exception on general failure including CQL library loading issues
      */
-    protected Tuple2<Object, Map<String, Object>> evaluate(CqlLibraryProvider libraryProvider, String contextName,
-            Tuple2<Object, List<Row>> rowsByContext, LongAccumulator perContextAccum) throws Exception {
-        CqlTerminologyProvider termProvider = new UnsupportedTerminologyProvider();
+    protected Tuple2<Object, Map<String, Object>> evaluate(CqlLibraryProvider libraryProvider,
+            CqlTerminologyProvider termProvider, String contextName, Tuple2<Object, List<Row>> rowsByContext,
+            LongAccumulator perContextAccum) throws Exception {
 
         // Convert the Spark objects to the cohort Java model
         List<DataRow> datarows = rowsByContext._2().stream().map(getDataRowFactory()).collect(Collectors.toList());
@@ -392,7 +394,7 @@ public class SparkCqlEvaluator implements Serializable {
     protected Tuple2<Object, Map<String, Object>> evaluate(Tuple2<Object, List<Row>> rowsByContext,
             CqlEvaluator evaluator, CqlEvaluationRequests requests, LongAccumulator perContextAccum) {
         perContextAccum.add(1);
-        ;
+        
         Map<String, Object> expressionResults = new HashMap<>();
         for (CqlEvaluationRequest request : requests.getEvaluations()) {
             if (expressions != null && expressions.size() > 0) {
@@ -414,6 +416,30 @@ public class SparkCqlEvaluator implements Serializable {
         }
 
         return new Tuple2<>(rowsByContext._1(), expressionResults);
+    }
+    
+
+    protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException {
+        
+        CqlLibraryProvider fsBasedLp = new DirectoryBasedCqlLibraryProvider(new File(cqlPath));
+        CqlLibraryProvider cpBasedLp = new ClasspathCqlLibraryProvider("org.hl7.fhir");
+        CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( fsBasedLp, cpBasedLp );
+
+        // TODO - replace with cohort shared translation component
+        final CqlToElmTranslator translator = new CqlToElmTranslator();
+        if (modelInfoPaths != null && modelInfoPaths.size() > 0) {
+            for (String path : modelInfoPaths) {
+                try (Reader r = new FileReader(path)) {
+                    translator.registerModelInfo(r);
+                }
+            }
+        }
+        
+        return new TranslatingCqlLibraryProvider(priorityLp, translator);
+    }
+    
+    protected CqlTerminologyProvider createTerminologyProvider() {
+        return new UnsupportedTerminologyProvider();
     }
 
     /**

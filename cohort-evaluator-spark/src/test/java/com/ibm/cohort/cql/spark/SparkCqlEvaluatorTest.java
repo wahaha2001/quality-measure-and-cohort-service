@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.ibm.cohort.cql.evaluation.CqlEvaluationRequests;
 import com.ibm.cohort.cql.library.CqlLibraryProvider;
-import com.ibm.cohort.cql.library.fs.DirectoryBasedCqlLibraryProvider;
+import com.ibm.cohort.cql.library.DirectoryBasedCqlLibraryProvider;
 import com.ibm.cohort.cql.spark.aggregation.ContextDefinitions;
 import com.ibm.cohort.cql.spark.data.Patient;
 import com.ibm.cohort.cql.spark.data.SparkTypeConverter;
