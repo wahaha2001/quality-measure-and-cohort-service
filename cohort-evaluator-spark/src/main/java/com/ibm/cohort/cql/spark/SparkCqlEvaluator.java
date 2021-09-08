@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -82,10 +83,16 @@ public class SparkCqlEvaluator implements Serializable {
             "--context-definitions" }, description = "Filesystem path to the context-definitions file.", required = false)
     public String contextDefinitionPath;
 
+    @Parameter(names = { "--input-format" }, description = "Spark SQL format identifier for input files. If not provided, the value of spark.sql.datasources.default is used.", required = false)
+    public String inputFormat;
+    
     @DynamicParameter(names = { "-i",
             "--input-path" }, description = "Key-value pair of resource=URI controlling where Spark should read resources referenced in the context definitions file will be read from. Specify multiple files by providing a separate option for each input.", required = true)
     public Map<String, String> inputPaths = new HashMap<>();
 
+    @Parameter(names = { "--output-format" }, description = "Spark SQL format identifier for output files. If not provided, the value of spark.sql.datasources.default is used.", required = false)
+    public String outputFormat;
+    
     @DynamicParameter(names = { "-o",
             "--output-path" }, description = "Key-value pair of context=URI controlling where Spark should write the results of CQL evaluation requests. Specify multiple files by providing a separate option for each output.", required = true)
     public Map<String, String> outputPaths = new HashMap<>();
@@ -236,7 +243,11 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected JavaPairRDD<Object, Row> readDataset(SparkSession spark, String fileURI, String dataType,
             String contextColumn) {
-        Dataset<Row> dataset = spark.read().load(fileURI).withColumn(SOURCE_FACT_IDX, functions.lit(dataType));
+        DataFrameReader reader = spark.read();
+        if( inputFormat != null ) {
+            reader = reader.format(inputFormat);
+        }
+        Dataset<Row> dataset = reader.load(fileURI).withColumn(SOURCE_FACT_IDX, functions.lit(dataType));
 
         return dataset.javaRDD().mapToPair(row -> {
             Object joinValue = row.getAs(contextColumn);
@@ -477,6 +488,9 @@ public class SparkCqlEvaluator implements Serializable {
 //            
 //            RowFactory.create(tuple._1(), )
 //        })
+        
+        // TODO - use the outputFormat parameter if it isn't null
+        
 
         if (outputPartitions != null) {
             resultsByContext = resultsByContext.repartition(outputPartitions.intValue());

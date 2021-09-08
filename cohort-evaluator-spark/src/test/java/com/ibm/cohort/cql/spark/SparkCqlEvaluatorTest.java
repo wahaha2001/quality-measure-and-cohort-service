@@ -12,7 +12,6 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.spark.sql.Dataset;
@@ -100,6 +99,7 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
           "-j", "src/test/resources/alltypes/cql-jobs.json",
           "-m", "src/test/resources/alltypes/modelinfo/alltypes-modelinfo-1.0.0.xml",
           "-c", "src/test/resources/alltypes/cql",
+          "--input-format", "parquet",
           "-i", "A=" + new File(inputDir, "testdata/test-A.parquet").toURI().toString(),
           "-i", "B=" + new File(inputDir, "testdata/test-B.parquet").toURI().toString(),
           "-i", "C=" + new File(inputDir, "testdata/test-C.parquet").toURI().toString(),
@@ -113,7 +113,7 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
         };
         
         Java8API useJava8API = Java8API.ENABLED;
-        try( SparkSession spark = initializeSession(useJava8API, Collections.singletonMap("spark.sql.sources.default", "parquet")) ) {
+        try( SparkSession spark = initializeSession(useJava8API) ) {
             evaluator.typeConverter = new SparkTypeConverter(useJava8API.getValue());
             
             SparkCqlEvaluator.main(args);
