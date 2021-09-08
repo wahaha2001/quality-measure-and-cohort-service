@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="HealthInsights"
 	version="0.0.1" url="http://ibm.com/health-insights"
-	targetQualifier="health-insights" patientClassName="A"
+	targetQualifier="health-insights" patientClassName="Person"
 	patientBirthDatePropertyName="none">
 	<typeInfo namespace="HealthInsights" name="Admission"
 		identifier="http://ibm.com/health-insights/Admission"
@@ -11,8 +11,8 @@
 		<element name="admission_id " elementType="System.String" />
 		<element name="batch_id" elementType="System.String" />
 		<element name="person_id" elementType="System.String" />
-		<element name="adm_orig_admit_dt" elementType="System.DateTime" />
-		<element name="adm_days_last_cnt" elementType="System.String" />
+		<element name="adm_orig_admit_dt" elementType="System.Date" />
+		<element name="adm_days_last_cnt" elementType="System.Decimal" />
 		<element name="adm_place_grp_cd" elementType="String" />
 		<element name="dx_cd" elementType="System.String" />
 		<element name="dx_cd2" elementType="System.String" />
@@ -143,9 +143,9 @@
 		<element name="episode_id " elementType="System.String" />
 		<element name="batch_id" elementType="System.String" />
 		<element name="person_id" elementType="System.String" />
-		<element name="epi_first_svc_dt" elementType="System.DateTime" />
-		<element name="epi_tot_allow_amt" elementType="System.String" />
-		<element name="epi_rx_allow_amt" elementType="String" />
+		<element name="epi_first_svc_dt" elementType="System.Date" />
+		<element name="epi_tot_allow_amt" elementType="System.Decimal" />
+		<element name="epi_rx_allow_amt" elementType="System.Decimal" />
 		<element name="epi_type_cd" elementType="System.String" />
 		<element name="epi_sum_grp_cd" elementType="System.String" />
 	</typeInfo>
@@ -157,8 +157,8 @@
 		<element name="source_file_id" elementType="System.String" />
 		<element name="batch_id" elementType="System.String" />
 		<element name="person_id" elementType="System.String" />
-		<element name="first_svc_dt" elementType="System.DateTime" />
-		<element name="paid_dt" elementType="System.DateTime" />
+		<element name="first_svc_dt" elementType="System.Date" />
+		<element name="paid_dt" elementType="System.Date" />
 		<element name="chg_allow_amt" elementType="System.Decimal" />
 		<element name="net_pay_amt" elementType="System.Decimal" />
 		<element name="mdst_place_cd" elementType="System.String" />
@@ -175,8 +175,8 @@
 		<element name="source_file_id" elementType="System.String" />
 		<element name="batch_id" elementType="System.String" />
 		<element name="person_id" elementType="System.String" />
-		<element name="first_svc_dt" elementType="System.DateTime" />
-		<element name="paid_dt" elementType="System.DateTime" />
+		<element name="first_svc_dt" elementType="System.Date" />
+		<element name="paid_dt" elementType="System.Date" />
 		<element name="chg_allow_amt" elementType="System.Decimal" />
 		<element name="net_pay_amt" elementType="System.Decimal" />
 		<element name="mdst_place_cd" elementType="System.String" />
@@ -265,8 +265,8 @@
 		<element name="source_file_id" elementType="System.String" />
 		<element name="batch_id" elementType="System.String" />
 		<element name="person_id" elementType="System.String" />
-		<element name="first_svc_dt" elementType="System.DateTime" />
-		<element name="paid_dt" elementType="System.DateTime" />
+		<element name="first_svc_dt" elementType="System.Date" />
+		<element name="paid_dt" elementType="System.Date" />
 		<element name="chg_allow_amt" elementType="System.Decimal" />
 		<element name="net_pay_amt" elementType="System.Decimal" />
 		<element name="mdst_place_cd" elementType="System.String" />
