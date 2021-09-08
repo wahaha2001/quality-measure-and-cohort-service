@@ -38,11 +38,11 @@ public class CqlContextFactory {
      * same between evaluations (libraryProvider, terminologyProvider).
      */
     protected static class ContextCacheKey {
-        public CqlLibraryProvider libraryProvider;
-        public CqlTerminologyProvider terminologyProvider;
-        public CqlLibraryDescriptor topLevelLibrary;
-        public ZonedDateTime evaluationDateTime;
-        public Map<String,Object> parameters;
+        final public CqlLibraryProvider libraryProvider;
+        final public CqlTerminologyProvider terminologyProvider;
+        final public CqlLibraryDescriptor topLevelLibrary;
+        final public ZonedDateTime evaluationDateTime;
+        final public Map<String,Object> parameters;
 
         public ContextCacheKey(CqlLibraryProvider libraryProvider, CqlLibraryDescriptor topLevelLibrary,
                 CqlTerminologyProvider terminologyProvider,ZonedDateTime evaluationDateTime,

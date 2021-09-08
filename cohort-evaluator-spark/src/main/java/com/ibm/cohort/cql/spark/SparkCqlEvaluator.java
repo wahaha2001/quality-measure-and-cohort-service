@@ -66,9 +66,9 @@ import com.ibm.cohort.datarow.model.DataRow;
 import scala.Tuple2;
 
 /**
- * Given knowledge and clinical data artifacts provided in an Amazon S3
- * compatible storage bucket, evaluate clinical queries defined in the HL7
- * clinical quality language (CQL).
+ * Given knowledge and configuration artifacts available under local storage and
+ * data artifacts accessible via Hadoop (Local filesystem, Amazon S3, etc.),
+ * evaluate clinical queries and write out the results.
  */
 public class SparkCqlEvaluator implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(SparkCqlEvaluator.class);
@@ -129,8 +129,27 @@ public class SparkCqlEvaluator implements Serializable {
 
     protected SparkTypeConverter typeConverter;
 
+    /**
+     * Store a single copy of the job specification data per thread. This allows the data
+     * to be read once from underlying storage and reused across each context
+     * evaluation (of which there are many).
+     */
     protected static ThreadLocal<CqlEvaluationRequests> jobSpecification = new ThreadLocal<>();
+    
+    /**
+     * Store a single configured copy of the library provider per thread. This allows the
+     * library provider to be reused which impacts the ability of the CQL context objects to
+     * be reused. CQL context object reuse is important for performance reasons. Context
+     * objects are inherently slow to initialize. It is important that this and the 
+     * terminologyProvider instances remain the same from one run to the next or unnecessary
+     * Context initializations will occur.
+     */
     protected static ThreadLocal<CqlLibraryProvider> libraryProvider = new ThreadLocal<>();
+    
+    /**
+     * Store a single configured copy of the terminology provider per thread. See the 
+     * discussion in the libraryProvider documentation for complete reasoning.
+     */
     protected static ThreadLocal<CqlTerminologyProvider> terminologyProvider = new ThreadLocal<>();
 
     public void run(PrintStream out) throws Exception {
@@ -429,7 +448,16 @@ public class SparkCqlEvaluator implements Serializable {
         return new Tuple2<>(rowsByContext._1(), expressionResults);
     }
     
-
+    /**
+     * Initialize a library provider that will load resources from the configured path
+     * in local storage or from the well-known classpath locations. The library provider
+     * comes configured with CQL translation enabled and will use custom modelinfo
+     * definitions if provided in the configuration.
+     * 
+     * @return configured library provider
+     * @throws IOException when model info cannot be read
+     * @throws FileNotFoundException when a specified model info file cannot be found
+     */
     protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException {
         
         CqlLibraryProvider fsBasedLp = new DirectoryBasedCqlLibraryProvider(new File(cqlPath));
@@ -449,6 +477,11 @@ public class SparkCqlEvaluator implements Serializable {
         return new TranslatingCqlLibraryProvider(priorityLp, translator);
     }
     
+    /**
+     * Initialize a terminology provider.
+     * 
+     * @return configured terminology provider.
+     */
     protected CqlTerminologyProvider createTerminologyProvider() {
         return new UnsupportedTerminologyProvider();
     }
