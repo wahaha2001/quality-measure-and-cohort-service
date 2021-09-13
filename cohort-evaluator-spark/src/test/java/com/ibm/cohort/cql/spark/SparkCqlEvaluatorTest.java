@@ -12,11 +12,25 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalyst.JavaTypeInference;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -30,6 +44,9 @@ import com.ibm.cohort.cql.spark.data.SparkTypeConverter;
 import com.ibm.cohort.cql.translation.CqlToElmTranslator;
 import com.ibm.cohort.cql.translation.TranslatingCqlLibraryProvider;
 
+import scala.Tuple2;
+import scala.collection.JavaConverters;
+
 public class SparkCqlEvaluatorTest extends BaseSparkTest {
     private static final long serialVersionUID = 1L;
     
@@ -40,6 +57,235 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
         this.evaluator = new SparkCqlEvaluator();
     }
 
+    @Test
+    public void schemaTest() {
+        try (SparkSession spark = initializeSession(Java8API.ENABLED)) {
+            JavaPairRDD<Object, Map<String, Object>> resultsByContext;
+            
+            
+        }
+    }
+    
+    public StructType getStructType(Map<String, Object> dataMap) {
+        StructType schema = new StructType();
+        for( Map.Entry<String,Object> entry : dataMap.entrySet() ) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value == null) {
+            	schema = schema.add(key, DataTypes.NullType);
+			}
+			else if (value instanceof Map) {
+				schema = schema.add(key, getStructType((Map) value));
+			} else {
+				Tuple2<DataType, Object> tuple2 = JavaTypeInference.inferDataType(value.getClass());
+				schema = schema.add(key, tuple2._1());
+			}
+        }
+        return schema;
+    }
+    
+    public List<Object> getData(Map<String, Object> dataMap, StructType schema) {
+        List<Object> data = new ArrayList<>();
+        for (StructField field : schema.fields()) {
+            Object o = dataMap.get(field.name());
+			if (o != null && o instanceof Map) {
+				o = getData((Map) o, (StructType) field.dataType());
+			}
+			data.add(o);
+        }
+        return data;
+    }
+    
+    
+    
+    @Test
+	public void testAvailableSchema() {
+		try( SparkSession spark = initializeSession(Java8API.ENABLED) ) {
+
+			StructType schema = new StructType()
+					.add("key", DataTypes.StringType, false)
+					.add("field1", DataTypes.IntegerType, true)
+					.add("field2", DataTypes.StringType, true)
+					.add("field3", DataTypes.DoubleType, true);
+
+			List<List<Object>> allData = new ArrayList<>();
+			allData.add(Arrays.asList("key1", 1, "str1", 1.5));
+			allData.add(Arrays.asList("key2", 2, "str2", 2.5));
+			allData.add(Arrays.asList("key3", 3, "str3", 3.5));
+
+			List<Row> collect = allData.stream().map(a -> RowFactory.create(a.toArray())).collect(Collectors.toList());
+
+			Dataset<Row> dataFrame = spark.createDataFrame(collect, schema);
+			dataFrame.show();
+		}
+	}
+
+	@Test
+	public void testAvailableSchema2() {
+		try( SparkSession spark = initializeSession(Java8API.ENABLED) ) {
+
+			StructType schema = new StructType()
+					.add("key", DataTypes.StringType, false)
+					.add("field1", DataTypes.IntegerType, true)
+					.add("field2", DataTypes.StringType, true)
+					.add("field3", DataTypes.DoubleType, true);
+
+			List<List<Object>> allData = new ArrayList<>();
+			allData.add(Arrays.asList("key0", null, null, null));
+			allData.add(Arrays.asList("key1", 1, "str1", 1.5));
+			allData.add(Arrays.asList("key2", null, "str2", 2.5));
+			allData.add(Arrays.asList("key3", 3, null, 3.5));
+			allData.add(Arrays.asList("key4", 4, "str4", null));
+
+			List<Row> collect = allData.stream().map(a -> RowFactory.create(a.toArray())).collect(Collectors.toList());
+
+			Dataset<Row> dataFrame = spark.createDataFrame(collect, schema);
+			dataFrame.show();
+		}
+	}
+	
+	public Dataset<Row> convertResultToDataFrame(SparkSession spark, StructType schema, JavaPairRDD<Object, Map<String, Object>> resultsByKey) {
+    	return spark.createDataFrame(convertResultToRDD(schema, resultsByKey), schema);
+	}
+	
+	// For now assuming first field is the key field
+	public JavaRDD<Row> convertResultToRDD(StructType schema, JavaPairRDD<Object, Map<String, Object>> resultsByKey) {
+		return resultsByKey
+				.map(t -> {
+					Object contextKey = t._1();
+					Map<String, Object> results = t._2();
+
+					List<Object> data = new ArrayList<>();
+					data.add(contextKey);
+					for (String field : Arrays.copyOfRange(schema.fieldNames(), 1, schema.fieldNames().length)) {
+						data.add(results.get(field));
+					}
+					return data.toArray();
+				})
+				.map(RowFactory::create);
+    }
+
+	@Test
+	public void testConvertFromPairRDD() {
+		try( SparkSession spark = initializeSession(Java8API.ENABLED) ) {
+
+			// first field will be the key in the JavaPairRDD created later
+			StructType schema = new StructType()
+					.add("key", DataTypes.StringType, false)
+					.add("field1", DataTypes.IntegerType, true)
+					.add("field2", DataTypes.StringType, true)
+					.add("field3", DataTypes.DoubleType, true);
+
+			List<List<Object>> allData = new ArrayList<>();
+			allData.add(Arrays.asList("key0", null, null, null));
+			allData.add(Arrays.asList("key1", 1, "str1", 1.5));
+			allData.add(Arrays.asList("key2", null, "str2", 2.5));
+			allData.add(Arrays.asList("key3", 3, null, 3.5));
+			allData.add(Arrays.asList("key4", 4, "str4", null));
+
+			List<Row> collect = allData
+					.stream()
+					.map(a -> RowFactory.create(a.toArray()))
+					.collect(Collectors.toList());
+
+			Dataset<Row> dataFrame = spark.createDataFrame(collect, schema);
+
+			List<String> fields = Arrays.asList(Arrays.copyOfRange(schema.fieldNames(), 1, schema.fieldNames().length));
+
+			JavaPairRDD<Object, Map<String, Object>> objectMapJavaPairRDD = dataFrame
+					.toJavaRDD()
+					.mapToPair(
+							r -> new Tuple2<>(
+									r.get(0),
+									JavaConverters.mapAsJavaMap(
+											r.getValuesMap(JavaConverters.asScalaIteratorConverter(fields.iterator()).asScala().toSeq())
+									)
+							)
+					);
+
+			Dataset<Row> resultDataFrame = convertResultToDataFrame(spark, schema, objectMapJavaPairRDD);
+			dataFrame.show();
+			resultDataFrame.show();
+			
+			assertEquals(dataFrame.count(), resultDataFrame.count());
+			assertEquals(0, dataFrame.except(resultDataFrame).count());
+		}
+	}
+    
+    @Test
+    public void schemaTests() {
+        try( SparkSession spark = initializeSession(Java8API.ENABLED) ) {
+            SortedMap<String, Object> columnData = new TreeMap<>();
+            columnData.put("Greeting", "Hello,World");
+            columnData.put("Age", 40);
+            columnData.put("Weight", 145.97);
+
+//            Map<String,Object> nested = new HashMap<>();
+//            nested.put("type", "time");
+//            nested.put("value", "10:11:12");
+//            columnData.put("NestedMap", nested);
+            
+            StructType schema = getStructType(columnData);
+            List<Object> data = getData(columnData, schema);
+
+
+
+            Row row = RowFactory.create(data.toArray());
+
+			SortedMap<String, Object> columnData2 = new TreeMap<>();
+			columnData2.put("Greeting", "Hello,World");
+			columnData2.put("Age", 40);
+			columnData2.put("Weight", null);
+
+			StructType schema2 = getStructType(columnData2);
+			List<Object> data2 = getData(columnData2, schema2);
+
+			Row row2 = RowFactory.create(data2.toArray());
+
+			Dataset<Row> dataFrame = spark.createDataFrame(Arrays.asList(row, row2), schema);
+
+			int x = 0;
+        }
+    }
+    
+    @Test
+    public void schemaIsh() {
+        try( SparkSession spark = initializeSession(Java8API.ENABLED) ) {
+            SortedMap<String,Object> columnData = new TreeMap<>();
+            columnData.put("Greeting", "Hello,World");
+            columnData.put("Age", 40);
+            columnData.put("Weight", 145.97);
+
+            Map<String,String> nested = new HashMap<>();
+            nested.put("_type", "time");
+            nested.put("value", "10:11:12");
+            //columnData.put("NestedMap", JavaConverters.mapAsScalaMap(nested));
+//            columnData.put("NestedMap", nested);
+
+            List<Object> rowData = new ArrayList<>();
+
+            StructType schema = new StructType();
+            for( Map.Entry<String,Object> entry : columnData.entrySet() ) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                Tuple2<DataType, Object> tuple2 = JavaTypeInference.inferDataType(value.getClass());
+                schema = schema.add( key, tuple2._1() );
+                rowData.add(value);
+            }
+
+            Row row = RowFactory.create(rowData.toArray(new Object[rowData.size()]));
+
+            Dataset<Row> dataset = spark.createDataFrame(Arrays.asList(row), schema);
+            assertEquals(1, dataset.count());
+            assertEquals(columnData.keySet(), Arrays.stream(dataset.schema().fieldNames()).collect(Collectors.toSet()));
+
+            Row first = ((Row[])dataset.take(1))[0];
+            for( int i=0; i<dataset.schema().fieldNames().length; i++ ) {
+                assertEquals( columnData.get(dataset.schema().fieldNames()[i]), first.getAs(i) );
+            }
+        }
+    }
+    
     @Test
     @Ignore
     public void createPatientTestData() {

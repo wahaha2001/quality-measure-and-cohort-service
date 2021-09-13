@@ -510,17 +510,14 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected void writeResults(SparkSession spark, JavaPairRDD<Object, Map<String, Object>> resultsByContext,
             String outputURI) {
+    	
+    	// Will need to get output schema. Assume it's available for now. We can try to calculate one
+		// later if needed.
+		// Assuming context key is part of the output, figure out out to make sure that the output data
+		// matches up with the correct ordering in the schema. Do we need to track the key column name for 
+		// each context?
 
-//        TODO - output the data in delta lake format.
-//        Map<String,Object> columnData = resultsByContext.take(1).get(0)._2();
-//        StructType schema = new StructType();
-//        schema.add(name, DataTypes.cre)
-//        
-//        JavaRDD<Row> rows = resultsByContext.map( tuple -> {
-//            List<Object> columns = 
-//            
-//            RowFactory.create(tuple._1(), )
-//        })
+		//        TODO - output the data in delta lake format.
         
         // TODO - use the outputFormat parameter if it isn't null
         
