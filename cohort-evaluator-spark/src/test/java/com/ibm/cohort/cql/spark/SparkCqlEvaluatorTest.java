@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
@@ -46,6 +48,7 @@ import com.ibm.cohort.cql.translation.TranslatingCqlLibraryProvider;
 
 import scala.Tuple2;
 import scala.collection.JavaConverters;
+import scala.reflect.ClassTag$;
 
 public class SparkCqlEvaluatorTest extends BaseSparkTest {
     private static final long serialVersionUID = 1L;
@@ -285,6 +288,102 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
             }
         }
     }
+    
+    public class DataClass1 implements Serializable {
+    	String greeting;
+    	Map<String, String> nested;
+
+    	public DataClass1(String greeting, Map<String, String> nested) {
+			this.greeting = greeting;
+			this.nested = nested;
+		}
+
+		public String getGreeting() {
+			return greeting;
+		}
+
+		public void setGreeting(String greeting) {
+			this.greeting = greeting;
+		}
+		
+
+		public Map<String, String> getNested() {
+			return nested;
+		}
+
+		public void setNested(HashMap<String, String> nested) {
+			this.nested = nested;
+		}
+	}
+
+	public class DataClass2 implements Serializable {
+		Integer number;
+		Map<String, Object> nested;
+
+		public DataClass2(Integer number, Map<String, Object> nested) {
+			this.number = number;
+			this.nested = nested;
+		}
+
+		public Integer getNumber() {
+			return number;
+		}
+
+		public void setNumber(Integer number) {
+			this.number = number;
+		}
+
+		public Map<String, Object> getNested() {
+			return nested;
+		}
+
+		public void setNested(Map<String, Object> nested) {
+			this.nested = nested;
+		}
+	}
+    
+    @Test
+	public void mapToDF() {
+		try (SparkSession spark = initializeSession(Java8API.ENABLED)) {
+			Map<String,String> nested = new HashMap<>();
+			nested.put("type", "time");
+			nested.put("value", "10:11:12");
+
+			List<DataClass1> dataClasses = Arrays.asList(new DataClass1("hello,world", nested));
+
+			Encoders.bean(DataClass1.class).schema().printTreeString();
+			
+			Dataset<Row> dataFrame = spark.createDataFrame(dataClasses, DataClass1.class);
+			dataFrame.show(false);
+			dataFrame.printSchema();
+		}
+	}
+
+	// Need to figure out how to handle this sort of case. Can we encode a map of String to Object?
+	@Ignore
+	@Test
+	public void mapToDF2() {
+		try (SparkSession spark = initializeSession(Java8API.ENABLED)) {
+			Map<String,Object> nested2 = new HashMap<>();
+			nested2.put("type", "time");
+			nested2.put("value", 55);
+
+			List<DataClass2> dataClasses2 = Arrays.asList(new DataClass2(43, nested2));
+
+			Encoders.bean(DataClass2.class).schema().printTreeString();
+
+			JavaRDD<DataClass2> rdd = spark.sparkContext().parallelize(
+					JavaConverters.asScalaIteratorConverter(dataClasses2.iterator()).asScala().toSeq(),
+					1,
+					ClassTag$.MODULE$.apply(DataClass2.class)
+			).toJavaRDD();
+
+			Dataset<Row> dataFrame2 = spark.createDataFrame(dataClasses2, DataClass2.class);
+			Dataset<DataClass2> dataset = spark.sqlContext().createDataset(rdd.rdd(), Encoders.bean(DataClass2.class));
+			dataFrame2.printSchema();
+			dataFrame2.show(false);
+		}
+	}
     
     @Test
     @Ignore
