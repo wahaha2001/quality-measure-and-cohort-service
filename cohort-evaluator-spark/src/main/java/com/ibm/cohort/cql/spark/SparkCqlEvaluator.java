@@ -44,6 +44,7 @@ import com.ibm.cohort.cql.evaluation.CqlEvaluationRequest;
 import com.ibm.cohort.cql.evaluation.CqlEvaluationRequests;
 import com.ibm.cohort.cql.evaluation.CqlEvaluationResult;
 import com.ibm.cohort.cql.evaluation.CqlEvaluator;
+import com.ibm.cohort.cql.evaluation.CqlTypedExpression;
 import com.ibm.cohort.cql.library.ClasspathCqlLibraryProvider;
 import com.ibm.cohort.cql.library.CqlLibraryProvider;
 import com.ibm.cohort.cql.library.DirectoryBasedCqlLibraryProvider;
@@ -80,7 +81,7 @@ public class SparkCqlEvaluator implements Serializable {
     public boolean help;
 
     @Parameter(names = { "-d",
-            "--context-definitions" }, description = "Filesystem path to the context-definitions file.", required = false)
+            "--context-definitions" }, description = "Filesystem path to the context-definitions file.", required = true)
     public String contextDefinitionPath;
 
     @Parameter(names = { "--input-format" }, description = "Spark SQL format identifier for input files. If not provided, the value of spark.sql.datasources.default is used.", required = false)
@@ -428,7 +429,7 @@ public class SparkCqlEvaluator implements Serializable {
         Map<String, Object> expressionResults = new HashMap<>();
         for (CqlEvaluationRequest request : requests.getEvaluations()) {
             if (expressions != null && expressions.size() > 0) {
-                request.setExpressions(expressions);
+                request.setExpressions(expressions.stream().map(x -> new CqlTypedExpression(x, null)).collect(Collectors.toSet()));
             }
 
             // add any global parameters that have not been overridden locally

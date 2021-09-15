@@ -223,10 +223,10 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
             columnData.put("Age", 40);
             columnData.put("Weight", 145.97);
 
-//            Map<String,Object> nested = new HashMap<>();
-//            nested.put("type", "time");
-//            nested.put("value", "10:11:12");
-//            columnData.put("NestedMap", nested);
+            Map<String,Object> nested = new HashMap<>();
+            nested.put("type", "time");
+            nested.put("value", "10:11:12");
+            columnData.put("NestedMap", nested);
             
             StructType schema = getStructType(columnData);
             List<Object> data = getData(columnData, schema);
@@ -360,7 +360,7 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
 	}
 
 	// Need to figure out how to handle this sort of case. Can we encode a map of String to Object?
-	@Ignore
+	
 	@Test
 	public void mapToDF2() {
 		try (SparkSession spark = initializeSession(Java8API.ENABLED)) {
