@@ -46,11 +46,11 @@ public class CqlEvaluator {
     }
     
     public CqlEvaluationResult evaluate( CqlEvaluationRequest request ) {
-        return evaluate( request.getDescriptor(), request.getParameters(), Pair.of(request.getContextKey(), request.getContextValue()), request.getExpressions(), DEFAULT_CQL_DEBUG );
+        return evaluate(request.getDescriptor(), request.getParameters(), Pair.of(request.getContextKey(), request.getContextValue()), request.getTypedExpressions().stream().map(CqlTypedExpression::getExpression).collect(Collectors.toSet()), DEFAULT_CQL_DEBUG );
     }
     
     public CqlEvaluationResult evaluate( CqlEvaluationRequest request, CqlDebug debug ) {
-        return evaluate( request.getDescriptor(), request.getParameters(), Pair.of(request.getContextKey(), request.getContextValue()), request.getExpressions(), debug );
+        return evaluate(request.getDescriptor(), request.getParameters(), Pair.of(request.getContextKey(), request.getContextValue()), request.getTypedExpressions().stream().map(CqlTypedExpression::getExpression).collect(Collectors.toSet()), debug );
     }
     
     public CqlEvaluationResult evaluate( CqlLibraryDescriptor topLevelLibrary) throws CqlLibraryDeserializationException {

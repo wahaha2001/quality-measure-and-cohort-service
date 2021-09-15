@@ -27,13 +27,13 @@ public class CqlEvaluationRequestsTest {
         CqlEvaluationRequest r1 = new CqlEvaluationRequest();
         r1.setDescriptor(desc);
         r1.setParameters(localParameters);
-        r1.setExpressions(Collections.singleton("IsFemale"));
+        r1.setTypedExpressions(Collections.singleton(new CqlTypedExpression("IsFemale", CqlSparkTypeEnum.BOOLEAN)));
         r1.setContextKey("Patient");
         r1.setContextValue("NA");
 
         assertEquals( desc, r1.getDescriptor() );
         assertEquals( localParameters, r1.getParameters() );
-        assertEquals( Collections.singleton("IsFemale"), r1.getExpressions() );
+        assertEquals( Collections.singleton(new CqlTypedExpression("IsFemale", CqlSparkTypeEnum.BOOLEAN)), r1.getTypedExpressions() );
         assertEquals( "Patient", r1.getContextKey() );
         assertEquals( "NA", r1.getContextValue() );
         

@@ -7,7 +7,7 @@ import com.ibm.cohort.cql.library.CqlLibraryDescriptor;
 
 public class CqlEvaluationRequest {
     private CqlLibraryDescriptor descriptor;
-	private Set<String> expressions;
+	private Set<CqlTypedExpression> typedExpressions;
 	private Map<String,Object> parameters;
 	private String contextKey;
 	private String contextValue;
@@ -18,11 +18,11 @@ public class CqlEvaluationRequest {
     public void setDescriptor(CqlLibraryDescriptor descriptor) {
         this.descriptor = descriptor;
     }
-	public Set<String> getExpressions() {
-		return expressions;
+	public Set<CqlTypedExpression> getTypedExpressions() {
+		return typedExpressions;
 	}
-	public void setExpressions(Set<String> expressions) {
-		this.expressions = expressions;
+	public void setTypedExpressions(Set<CqlTypedExpression> typedExpressions) {
+		this.typedExpressions = typedExpressions;
 	}
 	public Map<String, Object> getParameters() {
 		return parameters;

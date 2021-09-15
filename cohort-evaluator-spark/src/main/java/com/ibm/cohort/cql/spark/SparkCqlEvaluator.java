@@ -30,6 +30,9 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructType;
 import org.apache.spark.util.LongAccumulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,8 @@ import com.ibm.cohort.cql.evaluation.CqlEvaluationRequest;
 import com.ibm.cohort.cql.evaluation.CqlEvaluationRequests;
 import com.ibm.cohort.cql.evaluation.CqlEvaluationResult;
 import com.ibm.cohort.cql.evaluation.CqlEvaluator;
+import com.ibm.cohort.cql.evaluation.CqlSparkTypeEnum;
+import com.ibm.cohort.cql.evaluation.CqlTypedExpression;
 import com.ibm.cohort.cql.library.ClasspathCqlLibraryProvider;
 import com.ibm.cohort.cql.library.CqlLibraryProvider;
 import com.ibm.cohort.cql.library.DirectoryBasedCqlLibraryProvider;
@@ -187,12 +192,59 @@ public class SparkCqlEvaluator implements Serializable {
                 JavaPairRDD<Object, Map<String, Object>> resultsByContext = rowsByContextId
                         .mapToPair(x -> evaluate(contextName, x, perContextAccum));
 
-                writeResults(spark, resultsByContext, outputPath);
+                StructType schema = getSchemaForContext(context);
+                
+                //  TODO: What do we do if a context "runs" but has no measures attached. Output nothing/skip?
+                if (schema.fieldNames().length > 1) {
+                    writeResults(spark, schema, resultsByContext, outputPath);
+                }
                 LOG.info(String.format("Wrote results for context %s to %s", contextName, outputPath));
 
                 contextAccum.add(1);
                 perContextAccum.reset();
             }
+        }
+    }
+    
+    protected StructType getSchemaForContext(ContextDefinition contextDefinition) throws Exception {
+        // TODO - Refactor after testing
+        CqlEvaluationRequests requests = jobSpecification.get();
+        if (requests == null) {
+            requests = readJobSpecification(jobSpecPath);
+            jobSpecification.set(requests);
+        }
+        
+        StructType schema = new StructType();
+        
+        // TODO: Make key dynamic to reflect actual type. Using string for now
+        schema = schema.add(contextDefinition.getPrimaryKeyColumn(), DataTypes.StringType, false);
+
+        for (CqlEvaluationRequest evaluation : requests.getEvaluations()) { 
+            if (evaluation.getContextKey().equals(contextDefinition.getName())) {
+                // need library name
+                String libraryId = evaluation.getDescriptor().getLibraryId();
+
+                Set<CqlTypedExpression> typedExpressions = evaluation.getTypedExpressions();
+                for (CqlTypedExpression typedExpression : typedExpressions) {
+                    schema = schema.add(libraryId + "." + typedExpression.getExpression(), getDataTypeForEnum(typedExpression.getReturnType()), true);
+                }
+            }
+        }
+        
+        return schema;
+    }
+    
+    // TODO: Move logic elsewhere
+    protected DataType getDataTypeForEnum(CqlSparkTypeEnum cqlSparkTypeEnum) {
+        switch (cqlSparkTypeEnum) {
+            case BOOLEAN:
+                return DataTypes.BooleanType;
+            case BINARY:
+                return DataTypes.BinaryType;
+            case STRING:
+                return DataTypes.StringType;
+            default:
+                throw new UnsupportedOperationException("Unsupported data type " + cqlSparkTypeEnum);
         }
     }
 
@@ -394,19 +446,16 @@ public class SparkCqlEvaluator implements Serializable {
             jobSpecification.set(requests);
         }
 
-        List<CqlEvaluationRequest> filteredRequests = requests.getEvaluations().stream()
-                .filter(r -> r.getContextKey().equals(contextName)).collect(Collectors.toList());
 
-        if (libraries != null && libraries.size() > 0) {
-            filteredRequests = filteredRequests.stream()
-                    .filter(r -> libraries.keySet().contains(r.getDescriptor().getLibraryId()))
-                    .collect(Collectors.toList());
-        }
-        return evaluate(rowsByContext, evaluator, requests, perContextAccum);
+        return evaluate(contextName, rowsByContext, evaluator, requests, perContextAccum);
     }
 
     /**
      * Evaluate the input CQL for a single context + data pair.
+     * 
+     * @param contextName     Context name used to select measure evaluations from
+     *                        the CqlEvaluationRequests. If null, all measures
+     *                        are executed.
      * 
      * @param rowsByContext   In-memory data for all datatypes related to a single
      *                        context
@@ -421,16 +470,22 @@ public class SparkCqlEvaluator implements Serializable {
      *         library name to avoid issues arising for expression names matching
      *         between libraries (e.g. LibraryName.ExpressionName).
      */
-    protected Tuple2<Object, Map<String, Object>> evaluate(Tuple2<Object, List<Row>> rowsByContext,
+    protected Tuple2<Object, Map<String, Object>> evaluate(String contextName, Tuple2<Object, List<Row>> rowsByContext,
             CqlEvaluator evaluator, CqlEvaluationRequests requests, LongAccumulator perContextAccum) {
         perContextAccum.add(1);
+
+        // TODO: Double check filtering still works
+        List<CqlEvaluationRequest> filteredRequests = requests.getEvaluations().stream()
+                .filter(r -> r.getContextKey().equals(contextName)).collect(Collectors.toList());
+
+        if (libraries != null && libraries.size() > 0) {
+            filteredRequests = filteredRequests.stream()
+                    .filter(r -> libraries.keySet().contains(r.getDescriptor().getLibraryId()))
+                    .collect(Collectors.toList());
+        }
         
         Map<String, Object> expressionResults = new HashMap<>();
-        for (CqlEvaluationRequest request : requests.getEvaluations()) {
-            if (expressions != null && expressions.size() > 0) {
-                request.setExpressions(expressions);
-            }
-
+        for (CqlEvaluationRequest request : filteredRequests) {
             // add any global parameters that have not been overridden locally
             if (requests.getGlobalParameters() != null) {
                 for (Map.Entry<String, Object> globalParameter : requests.getGlobalParameters().entrySet()) {
@@ -508,28 +563,16 @@ public class SparkCqlEvaluator implements Serializable {
      * @param outputURI        URI pointing at the location where output data should
      *                         be written.
      */
-    protected void writeResults(SparkSession spark, JavaPairRDD<Object, Map<String, Object>> resultsByContext,
+    protected void writeResults(SparkSession spark, StructType schema, JavaPairRDD<Object, Map<String, Object>> resultsByContext,
             String outputURI) {
-
-//        TODO - output the data in delta lake format.
-//        Map<String,Object> columnData = resultsByContext.take(1).get(0)._2();
-//        StructType schema = new StructType();
-//        schema.add(name, DataTypes.cre)
-//        
-//        JavaRDD<Row> rows = resultsByContext.map( tuple -> {
-//            List<Object> columns = 
-//            
-//            RowFactory.create(tuple._1(), )
-//        })
-        
-        // TODO - use the outputFormat parameter if it isn't null
-        
-
         if (outputPartitions != null) {
             resultsByContext = resultsByContext.repartition(outputPartitions.intValue());
         }
         String uuid = UUID.randomUUID().toString();
         LOG.info("Batch UUID " + uuid);
+        
+        //TODO: actually output stuff
+        
         resultsByContext.saveAsTextFile(outputURI + uuid);
     }
 
