@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,9 +26,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataType;
@@ -572,8 +575,24 @@ public class SparkCqlEvaluator implements Serializable {
         LOG.info("Batch UUID " + uuid);
         
         //TODO: actually output stuff
-        
-        resultsByContext.saveAsTextFile(outputURI + uuid);
+        Dataset<Row> dataFrame = spark.createDataFrame(
+                resultsByContext
+                        .map(t -> {
+                            Object contextKey = t._1();
+                            Map<String, Object> results = t._2();
+
+                            List<Object> data = new ArrayList<>();
+                            data.add(contextKey);
+                            for (String field : Arrays.copyOfRange(schema.fieldNames(), 1, schema.fieldNames().length)) {
+                                data.add(results.get(field));
+                            }
+                            return data.toArray();
+                        })
+                        .map(RowFactory::create),
+                schema
+        );
+
+        dataFrame.write().save(outputURI + uuid);
     }
 
     /**
