@@ -8,11 +8,12 @@ package com.ibm.cohort.cql.spark;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,11 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.deploy.SparkHadoopUtil;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -367,7 +372,7 @@ public class SparkCqlEvaluator implements Serializable {
      * @throws IOException when model info cannot be read
      * @throws FileNotFoundException when a specified model info file cannot be found
      */
-    protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException {
+    protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException, URISyntaxException {
         
         CqlLibraryProvider fsBasedLp = new DirectoryBasedCqlLibraryProvider(new File(args.cqlPath));
         CqlLibraryProvider cpBasedLp = new ClasspathCqlLibraryProvider("org.hl7.fhir");
@@ -377,7 +382,9 @@ public class SparkCqlEvaluator implements Serializable {
         final CqlToElmTranslator translator = new CqlToElmTranslator();
         if (args.modelInfoPaths != null && args.modelInfoPaths.size() > 0) {
             for (String path : args.modelInfoPaths) {
-                try (Reader r = new FileReader(path)) {
+                Path filePath = new Path(path);
+                FileSystem fileSystem = filePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
+                try (Reader r = new InputStreamReader(fileSystem.open(filePath))) {
                     translator.registerModelInfo(r);
                 }
             }
