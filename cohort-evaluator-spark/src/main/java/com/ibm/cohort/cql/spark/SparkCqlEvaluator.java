@@ -203,8 +203,11 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected ContextDefinitions readContextDefinitions(String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        ContextDefinitions contexts = mapper.readValue(new File(path), ContextDefinitions.class);
-        return contexts;
+        Path filePath = new Path(path);
+        FileSystem fileSystem = filePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
+        try (Reader r = new InputStreamReader(fileSystem.open(filePath))) {
+            return mapper.readValue(r, ContextDefinitions.class);
+        }
     }
 
     /**
@@ -374,6 +377,7 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException, URISyntaxException {
         
+        // TODO: Figure out if I can reuse DirectoryBasedCqlLibraryProvider with s3
         CqlLibraryProvider fsBasedLp = new DirectoryBasedCqlLibraryProvider(new File(args.cqlPath));
         CqlLibraryProvider cpBasedLp = new ClasspathCqlLibraryProvider("org.hl7.fhir");
         CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( fsBasedLp, cpBasedLp );
@@ -411,7 +415,12 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected CqlEvaluationRequests readJobSpecification(String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        CqlEvaluationRequests requests = mapper.readValue(new File(path), CqlEvaluationRequests.class);
+        Path filePath = new Path(path);
+        FileSystem fileSystem = filePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
+        CqlEvaluationRequests requests;
+        try (Reader r = new InputStreamReader(fileSystem.open(filePath))) {
+            requests = mapper.readValue(r, CqlEvaluationRequests.class);
+        }
         
         try( ValidatorFactory factory = Validation.buildDefaultValidatorFactory() ) { 
             Validator validator = factory.getValidator();
