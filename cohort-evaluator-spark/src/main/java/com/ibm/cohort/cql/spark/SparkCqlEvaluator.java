@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -29,6 +28,7 @@ import javax.validation.ValidatorFactory;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.deploy.SparkHadoopUtil;
@@ -54,6 +54,7 @@ import com.ibm.cohort.cql.evaluation.parameters.Parameter;
 import com.ibm.cohort.cql.library.ClasspathCqlLibraryProvider;
 import com.ibm.cohort.cql.library.CqlLibraryProvider;
 import com.ibm.cohort.cql.library.DirectoryBasedCqlLibraryProvider;
+import com.ibm.cohort.cql.library.HadoopBasedCqlLibraryProvider;
 import com.ibm.cohort.cql.library.PriorityCqlLibraryProvider;
 import com.ibm.cohort.cql.spark.aggregation.ContextDefinition;
 import com.ibm.cohort.cql.spark.aggregation.ContextDefinitions;
@@ -378,23 +379,37 @@ public class SparkCqlEvaluator implements Serializable {
     protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException, URISyntaxException {
         
         // TODO: Figure out if I can reuse DirectoryBasedCqlLibraryProvider with s3
-        CqlLibraryProvider fsBasedLp = new DirectoryBasedCqlLibraryProvider(new File(args.cqlPath));
+        CqlLibraryProvider fileBasedLp = getLibraryProvider();
         CqlLibraryProvider cpBasedLp = new ClasspathCqlLibraryProvider("org.hl7.fhir");
-        CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( fsBasedLp, cpBasedLp );
+        CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( fileBasedLp, cpBasedLp );
 
         // TODO - replace with cohort shared translation component
         final CqlToElmTranslator translator = new CqlToElmTranslator();
-        if (args.modelInfoPaths != null && args.modelInfoPaths.size() > 0) {
+        if (args.modelInfoPaths != null && !args.modelInfoPaths.isEmpty()) {
             for (String path : args.modelInfoPaths) {
                 Path filePath = new Path(path);
-                FileSystem fileSystem = filePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
-                try (Reader r = new InputStreamReader(fileSystem.open(filePath))) {
+                FileSystem modelInfoFilesystem = filePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
+                try (Reader r = new InputStreamReader(modelInfoFilesystem.open(filePath))) {
                     translator.registerModelInfo(r);
                 }
             }
         }
         
         return new TranslatingCqlLibraryProvider(priorityLp, translator);
+    }
+    
+    protected CqlLibraryProvider getLibraryProvider() throws IOException {
+        CqlLibraryProvider provider;
+        
+        Path cqlFilePath = new Path(args.cqlPath);
+        FileSystem cqlFileSystem = cqlFilePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
+        if (cqlFileSystem.getScheme().equals("file")) {
+            provider = new DirectoryBasedCqlLibraryProvider(new File(args.cqlPath));
+        }
+        else {
+            provider = new HadoopBasedCqlLibraryProvider(new Path(args.cqlPath));
+        }
+        return provider;
     }
     
     /**
