@@ -57,13 +57,15 @@ public class HadoopBasedCqlLibraryProvider implements CqlLibraryProvider {
         try {
             FileSystem fileSystem = directory.getFileSystem(SparkHadoopUtil.get().conf());
             Path path = new Path(directory, new Path(CqlLibraryHelpers.libraryDescriptorToFilename(libraryDescriptor)));
-            try(FSDataInputStream f = fileSystem.open(path)) {
-                library = new CqlLibrary()
-                        .setDescriptor(libraryDescriptor)
-                        .setContent(IOUtils.toString(f, Charset.defaultCharset()));
+            if (fileSystem.exists(path)) {
+                try (FSDataInputStream f = fileSystem.open(path)) {
+                    library = new CqlLibrary()
+                            .setDescriptor(libraryDescriptor)
+                            .setContent(IOUtils.toString(f, Charset.defaultCharset()));
+                }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize library", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to deserialize library " + libraryDescriptor, e);
         }
 
         return library;

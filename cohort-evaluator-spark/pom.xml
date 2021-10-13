@@ -157,6 +157,16 @@
 			<groupId>info.cqframework</groupId>
 			<artifactId>cql-to-elm</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>

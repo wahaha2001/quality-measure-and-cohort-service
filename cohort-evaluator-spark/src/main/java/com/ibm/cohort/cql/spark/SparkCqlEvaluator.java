@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -28,7 +28,6 @@ import javax.validation.ValidatorFactory;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.deploy.SparkHadoopUtil;
@@ -376,7 +375,7 @@ public class SparkCqlEvaluator implements Serializable {
      * @throws IOException when model info cannot be read
      * @throws FileNotFoundException when a specified model info file cannot be found
      */
-    protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException, URISyntaxException {
+    protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException {
         
         // TODO: Figure out if I can reuse DirectoryBasedCqlLibraryProvider with s3
         CqlLibraryProvider fileBasedLp = getLibraryProvider();
