@@ -6,7 +6,6 @@
 
 package com.ibm.cohort.cql.spark;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,7 +51,6 @@ import com.ibm.cohort.cql.evaluation.CqlEvaluator;
 import com.ibm.cohort.cql.evaluation.parameters.Parameter;
 import com.ibm.cohort.cql.library.ClasspathCqlLibraryProvider;
 import com.ibm.cohort.cql.library.CqlLibraryProvider;
-import com.ibm.cohort.cql.library.DirectoryBasedCqlLibraryProvider;
 import com.ibm.cohort.cql.library.HadoopBasedCqlLibraryProvider;
 import com.ibm.cohort.cql.library.PriorityCqlLibraryProvider;
 import com.ibm.cohort.cql.spark.aggregation.ContextDefinition;
@@ -377,10 +375,9 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException {
         
-        // TODO: Figure out if I can reuse DirectoryBasedCqlLibraryProvider with s3
-        CqlLibraryProvider fileBasedLp = getLibraryProvider();
+        CqlLibraryProvider hadoopBasedLp = new HadoopBasedCqlLibraryProvider(new Path(args.cqlPath));
         CqlLibraryProvider cpBasedLp = new ClasspathCqlLibraryProvider("org.hl7.fhir");
-        CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( fileBasedLp, cpBasedLp );
+        CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( hadoopBasedLp, cpBasedLp );
 
         // TODO - replace with cohort shared translation component
         final CqlToElmTranslator translator = new CqlToElmTranslator();
@@ -395,20 +392,6 @@ public class SparkCqlEvaluator implements Serializable {
         }
         
         return new TranslatingCqlLibraryProvider(priorityLp, translator);
-    }
-    
-    protected CqlLibraryProvider getLibraryProvider() throws IOException {
-        CqlLibraryProvider provider;
-        
-        Path cqlFilePath = new Path(args.cqlPath);
-        FileSystem cqlFileSystem = cqlFilePath.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
-        if (cqlFileSystem.getScheme().equals("file")) {
-            provider = new DirectoryBasedCqlLibraryProvider(new File(args.cqlPath));
-        }
-        else {
-            provider = new HadoopBasedCqlLibraryProvider(new Path(args.cqlPath));
-        }
-        return provider;
     }
     
     /**
