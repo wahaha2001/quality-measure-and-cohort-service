@@ -18,8 +18,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.spark.SparkContext;
-import org.apache.spark.deploy.SparkHadoopUtil;
+
+import com.ibm.cohort.cql.util.HadoopConfigUtil;
 
 public class HadoopBasedCqlLibraryProvider implements CqlLibraryProvider {
     
@@ -32,7 +32,7 @@ public class HadoopBasedCqlLibraryProvider implements CqlLibraryProvider {
     @Override
     public Collection<CqlLibraryDescriptor> listLibraries() {
         try {
-            FileSystem fileSystem = directory.getFileSystem(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
+            FileSystem fileSystem = HadoopConfigUtil.getFileSystemForPath(directory);
             RemoteIterator<LocatedFileStatus> fileStatusIterator = fileSystem.listFiles(directory, false);
             Set<CqlLibraryDescriptor> retVal = new HashSet<>();
             while(fileStatusIterator.hasNext()) {
@@ -55,7 +55,7 @@ public class HadoopBasedCqlLibraryProvider implements CqlLibraryProvider {
         CqlLibrary library = null;
         
         try {
-            FileSystem fileSystem = directory.getFileSystem(SparkHadoopUtil.get().conf());
+            FileSystem fileSystem = HadoopConfigUtil.getFileSystemForPath(directory);
             Path path = new Path(directory, new Path(CqlLibraryHelpers.libraryDescriptorToFilename(libraryDescriptor)));
             if (fileSystem.exists(path)) {
                 try (FSDataInputStream f = fileSystem.open(path)) {
