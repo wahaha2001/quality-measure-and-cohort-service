@@ -509,6 +509,7 @@ public class SparkCqlEvaluatorTest extends BaseSparkTest {
     
     @Test
     public void testReadCqlJobsInvalid() throws Exception {
+        evaluator.hadoopConfiguration = new SerializableConfiguration(SparkHadoopUtil.get().conf());
         assertThrows(IllegalArgumentException.class,
                 () -> evaluator.readJobSpecification("src/test/resources/invalid/cql-jobs-invalid-global.json"));
     }
