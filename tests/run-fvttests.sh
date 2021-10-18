@@ -50,6 +50,7 @@ runSparkTest() {
   # Build up the spark-submit command arguments as a string
 
   # use kubectl to exec into engine-spark-fvt-test pod spun off earlier and run the spark-submit command providing it the sparkargs string
+  echo "Running: /opt/spark/bin/spark-submit ${sparkargs}"
   kubectl -n ${CLUSTER_NAMESPACE} exec ${SPARK_POD_NAME} -- bash -c "/opt/spark/bin/spark-submit ${sparkargs}"
 
   # call the check-spark-submit-status.sh script to find out the status of the spark-submit job.
