@@ -27,7 +27,9 @@ import javax.validation.ValidatorFactory;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.deploy.SparkHadoopUtil;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -35,6 +37,7 @@ import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.util.LongAccumulator;
+import org.apache.spark.util.SerializableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +68,6 @@ import com.ibm.cohort.cql.terminology.CqlTerminologyProvider;
 import com.ibm.cohort.cql.terminology.UnsupportedTerminologyProvider;
 import com.ibm.cohort.cql.translation.CqlToElmTranslator;
 import com.ibm.cohort.cql.translation.TranslatingCqlLibraryProvider;
-import com.ibm.cohort.cql.util.HadoopConfigUtil;
 import com.ibm.cohort.cql.util.MapUtils;
 import com.ibm.cohort.datarow.engine.DataRowDataProvider;
 import com.ibm.cohort.datarow.engine.DataRowRetrieveProvider;
@@ -87,6 +89,8 @@ public class SparkCqlEvaluator implements Serializable {
     protected SparkTypeConverter typeConverter;
     
     protected SparkOutputColumnEncoder sparkOutputColumnEncoder;
+    
+    protected SerializableConfiguration hadoopConfiguration;
 
     /**
      * Store a single copy of the job specification data per thread. This allows the data
@@ -140,6 +144,7 @@ public class SparkCqlEvaluator implements Serializable {
             boolean useJava8API = Boolean.valueOf(spark.conf().get("spark.sql.datetime.java8API.enabled"));
             this.typeConverter = new SparkTypeConverter(useJava8API);
             this.sparkOutputColumnEncoder = new DefaultSparkOutputColumnEncoder(args.defaultOutputColumnDelimiter);
+            this.hadoopConfiguration = new SerializableConfiguration(SparkHadoopUtil.get().newConfiguration(SparkContext.getOrCreate().conf()));
 
             ContextDefinitions contexts = readContextDefinitions(args.contextDefinitionPath);
 
@@ -201,7 +206,7 @@ public class SparkCqlEvaluator implements Serializable {
     protected ContextDefinitions readContextDefinitions(String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Path filePath = new Path(path);
-        FileSystem fileSystem = HadoopConfigUtil.getFileSystemForPath(filePath);
+        FileSystem fileSystem = filePath.getFileSystem(this.hadoopConfiguration.value());
         try (Reader r = new InputStreamReader(fileSystem.open(filePath))) {
             return mapper.readValue(r, ContextDefinitions.class);
         }
@@ -374,7 +379,7 @@ public class SparkCqlEvaluator implements Serializable {
      */
     protected CqlLibraryProvider createLibraryProvider() throws IOException, FileNotFoundException {
         
-        CqlLibraryProvider hadoopBasedLp = new HadoopBasedCqlLibraryProvider(new Path(args.cqlPath));
+        CqlLibraryProvider hadoopBasedLp = new HadoopBasedCqlLibraryProvider(new Path(args.cqlPath), this.hadoopConfiguration.value());
         CqlLibraryProvider cpBasedLp = new ClasspathCqlLibraryProvider("org.hl7.fhir");
         CqlLibraryProvider priorityLp = new PriorityCqlLibraryProvider( hadoopBasedLp, cpBasedLp );
 
@@ -383,7 +388,7 @@ public class SparkCqlEvaluator implements Serializable {
         if (args.modelInfoPaths != null && !args.modelInfoPaths.isEmpty()) {
             for (String path : args.modelInfoPaths) {
                 Path filePath = new Path(path);
-                FileSystem modelInfoFilesystem = HadoopConfigUtil.getFileSystemForPath(filePath);
+                FileSystem modelInfoFilesystem = filePath.getFileSystem(this.hadoopConfiguration.value());
                 try (Reader r = new InputStreamReader(modelInfoFilesystem.open(filePath))) {
                     translator.registerModelInfo(r);
                 }
@@ -412,7 +417,7 @@ public class SparkCqlEvaluator implements Serializable {
     protected CqlEvaluationRequests readJobSpecification(String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Path filePath = new Path(path);
-        FileSystem fileSystem = HadoopConfigUtil.getFileSystemForPath(filePath);
+        FileSystem fileSystem = filePath.getFileSystem(this.hadoopConfiguration.value());
         CqlEvaluationRequests requests;
         try (Reader r = new InputStreamReader(fileSystem.open(filePath))) {
             requests = mapper.readValue(r, CqlEvaluationRequests.class);

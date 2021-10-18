@@ -13,26 +13,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 
-import com.ibm.cohort.cql.util.HadoopConfigUtil;
-
 public class HadoopBasedCqlLibraryProvider implements CqlLibraryProvider {
     
     private Path directory;
+    private Configuration configuration;
     
-    public HadoopBasedCqlLibraryProvider(Path directory) {
+    public HadoopBasedCqlLibraryProvider(Path directory, Configuration configuration) {
         this.directory = directory;
+        this.configuration = configuration;
     }
     
     @Override
     public Collection<CqlLibraryDescriptor> listLibraries() {
         try {
-            FileSystem fileSystem = HadoopConfigUtil.getFileSystemForPath(directory);
+            FileSystem fileSystem = directory.getFileSystem(configuration);
             RemoteIterator<LocatedFileStatus> fileStatusIterator = fileSystem.listFiles(directory, false);
             Set<CqlLibraryDescriptor> retVal = new HashSet<>();
             while(fileStatusIterator.hasNext()) {
@@ -55,7 +56,7 @@ public class HadoopBasedCqlLibraryProvider implements CqlLibraryProvider {
         CqlLibrary library = null;
         
         try {
-            FileSystem fileSystem = HadoopConfigUtil.getFileSystemForPath(directory);
+            FileSystem fileSystem = directory.getFileSystem(configuration);
             Path path = new Path(directory, new Path(CqlLibraryHelpers.libraryDescriptorToFilename(libraryDescriptor)));
             if (fileSystem.exists(path)) {
                 try (FSDataInputStream f = fileSystem.open(path)) {
