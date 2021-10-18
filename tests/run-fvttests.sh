@@ -168,11 +168,11 @@ kubectl -n ${CLUSTER_NAMESPACE} cp "${POD_NAME}:/tmp/artifacts" "${OUTPUT_DIR}/a
 ######################################### START of section specific to SPARK based fvt tests ######################################################
 test1Args="--deploy-mode cluster --name cohortfvt-spark --class com.ibm.cohort.cql.spark.SparkCqlEvaluator local:///opt/spark/jars/cohort-evaluator-spark-1.0.2-SNAPSHOT.jar -d /cohort-config/fvt/fvt-context-definitions.json -j /cohort-config/fvt/fvt-cql-jobs.json -m /cohort-config/fvt/fvt-model-info.xml -c /cohort-config/fvt/cql --input-format delta -i Device=s3a://cohort-data-tenant2/fvt-input-data/Device -i Observation=s3a://cohort-data-tenant2/fvt-input-data/Observation -i Patient=s3a://cohort-data-tenant2/fvt-input-data/Patient -i PatientDeviceJoin=s3a://cohort-data-tenant2/fvt-input-data/PatientDeviceJoin -i Practitioner=s3a://cohort-data-tenant2/fvt-input-data/Practitioner --overwrite-output-for-contexts -o Patient=s3a://cohort-data-tenant2/fvt-output/Patient_cohort -o Observation=s3a://cohort-data-tenant2/fvt-output/Observation_cohort -o Practitioner=s3a://cohort-data-tenant2/fvt-output/Practitioner_cohort -o Device=s3a://cohort-data-tenant2/fvt-output/Device_cohort"
 test1OutputFile="sparkFvtTest1.xml"
-runSparkTest ${test1Args} ${test1OutputFile}
+runSparkTest "${test1Args}" "${test1OutputFile}"
 
 test2Args="--deploy-mode cluster --name cohortfvt-spark --class com.ibm.cohort.cql.spark.SparkCqlEvaluator local:///opt/spark/jars/cohort-evaluator-spark-1.0.2-SNAPSHOT.jar -d s3a://cohort-config/fvt/fvt-context-definitions.json -j s3a://cohort-config/fvt/fvt-cql-jobs.json -m s3a://cohort-config/fvt/fvt-model-info.xml -c s3a://cohort-config/fvt/cql --input-format delta -i Device=s3a://cohort-data-tenant2/fvt-input-data/Device -i Observation=s3a://cohort-data-tenant2/fvt-input-data/Observation -i Patient=s3a://cohort-data-tenant2/fvt-input-data/Patient -i PatientDeviceJoin=s3a://cohort-data-tenant2/fvt-input-data/PatientDeviceJoin -i Practitioner=s3a://cohort-data-tenant2/fvt-input-data/Practitioner --overwrite-output-for-contexts -o Patient=s3a://cohort-data-tenant2/fvt-output/Patient_cohort -o Observation=s3a://cohort-data-tenant2/fvt-output/Observation_cohort -o Practitioner=s3a://cohort-data-tenant2/fvt-output/Practitioner_cohort -o Device=s3a://cohort-data-tenant2/fvt-output/Device_cohort"
 test2OutputFile="sparkFvtTest2.xml"
-runSparkTest ${test2Args} ${test2OutputFile}
+runSparkTest "${test2Args}" "${test2OutputFile}"
 
 ########################################### END of section specific to SPARK based fvt tests ###############################################################
 
