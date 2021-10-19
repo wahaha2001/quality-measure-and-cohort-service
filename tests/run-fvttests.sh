@@ -91,7 +91,8 @@ runSparkTest() {
   kubectl exec -n ${CLUSTER_NAMESPACE} ${SPARK_POD_NAME} -- tar cf - /spark-cos/fvt-output | tar xf - -C .
 
   # Call a Python script to validate the results of the spark fvt test by reading the parquet files from fvt-output folder copied earlier
-  $pythonBinary ${TEST_DIR}/scripts/validateSparkFvtOutput.py ${outputValidationFile}
+  echo "Runninng: ${TEST_DIR}/scripts/validateSparkFvtOutput.py ${outputValidationFile}"
+  $pythonBinary ${TEST_DIR}/scripts/validateSparkFvtOutput.py "${outputValidationFile}"
 
   # Check for existence of the file written out by the validateSparkFVTOutput.py python with validation results. If the file exists copy the file 
   # into the ${OUTPUT_DIR}/Results directory to be later combined with other "results" xml files (from non Spark based tests) into a single fvttest.xml file by the 
