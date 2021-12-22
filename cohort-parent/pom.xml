@@ -16,8 +16,8 @@
 		<module>../cohort-engine</module>
 		<module>../cohort-engine-flink-example</module>
 		<module>../cohort-cli</module>
-		<module>../cohort-engine-api</module>
-		<module>../cohort-engine-api-web</module>
+		<!-- <module>../cohort-engine-api</module>  -->
+		<!-- <module>../cohort-engine-api-web</module>  -->
 		<module>../cohort-util</module>
 		<module>../cohort-translation</module>
 		<module>../fhir-resource-tooling</module>
