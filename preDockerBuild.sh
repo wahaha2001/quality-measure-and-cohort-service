@@ -12,5 +12,7 @@ set -xe
 # in github packages and also the cql engine libraries
 # actual git credential values are stored in key protect in the cloud cluster
 # and injected via env variables when the toolchain runs
-mvn clean install -f cohort-parent -s .toolchain.maven.settings.xml
-#mvn clean install -pl cohort-util,cql-engine-addons,cohort-evaluator,cohort-model-datarow,cohort-evaluator-spark -am -s .toolchain.maven.settings.xml
+#mvn clean install -f cohort-parent -s .toolchain.maven.settings.xml
+cd cohort-parent
+mvn clean install -pl cohort-util,cql-engine-addons,cohort-evaluator,cohort-model-datarow,cohort-evaluator-spark -am -s .toolchain.maven.settings.xml
+cd ..
