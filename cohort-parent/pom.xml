@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<!-- <module>../build</module> -->
+		<module>../build</module>
 		<!-- <module>../fhir-client-config</module> -->
 		<!-- <module>../cohort-engine</module> -->
 		<!-- <module>../cohort-engine-flink-example</module> -->
