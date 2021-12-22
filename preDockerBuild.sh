@@ -13,4 +13,4 @@ set -xe
 # actual git credential values are stored in key protect in the cloud cluster
 # and injected via env variables when the toolchain runs
 #mvn clean install -f cohort-parent -s .toolchain.maven.settings.xml
-mvn clean install -f cohort-util,cql-engine-addons,cohort-evaluator,cohort-model-datarow,cohort-evaluator-spark -s .toolchain.maven.settings.xml
+mvn clean install -pl cohort-util,cql-engine-addons,cohort-evaluator,cohort-model-datarow,cohort-evaluator-spark -am -s .toolchain.maven.settings.xml
