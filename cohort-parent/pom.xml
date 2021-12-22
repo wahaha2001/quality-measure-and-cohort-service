@@ -11,21 +11,21 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>../build</module>
-		<module>../fhir-client-config</module>
-		<module>../cohort-engine</module>
-		<module>../cohort-engine-flink-example</module>
-		<module>../cohort-cli</module>
+		<!-- <module>../build</module> -->
+		<!-- <module>../fhir-client-config</module> -->
+		<!-- <module>../cohort-engine</module> -->
+		<!-- <module>../cohort-engine-flink-example</module> -->
+		<!-- <module>../cohort-cli</module> -->
 		<!-- <module>../cohort-engine-api</module>  -->
 		<!-- <module>../cohort-engine-api-web</module>  -->
 		<module>../cohort-util</module>
-		<module>../cohort-translation</module>
-		<module>../fhir-resource-tooling</module>
+		<!-- <module>../cohort-translation</module> -->
+		<!-- <module>../fhir-resource-tooling</module> -->
 		<module>../cohort-evaluator</module>
 		<module>../cohort-model-datarow</module>
 		<module>../cohort-evaluator-spark</module>
-		<module>../tests</module>
-		<module>../reports</module>
+		<!-- <module>../tests</module> -->
+		<!-- <module>../reports</module> -->
 		<!-- <module>../cohort-engine-distribution</module> -->
 		<module>../cql-engine-addons</module>
 	</modules>
