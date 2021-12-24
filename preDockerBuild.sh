@@ -14,3 +14,7 @@ set -xe
 # and injected via env variables when the toolchain runs
 mvn clean install -f cohort-parent -s .toolchain.maven.settings.xml
 #mvn clean install -pl cohort-util,cql-engine-addons,cohort-evaluator,cohort-model-datarow,cohort-evaluator-spark -am -s .toolchain.maven.settings.xml
+
+ls -l
+ls -l ./target
+ls -l ./target/lib
