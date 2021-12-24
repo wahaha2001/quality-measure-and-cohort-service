@@ -16,5 +16,5 @@ mvn clean install -f cohort-parent -s .toolchain.maven.settings.xml
 #mvn clean install -pl cohort-util,cql-engine-addons,cohort-evaluator,cohort-model-datarow,cohort-evaluator-spark -am -s .toolchain.maven.settings.xml
 
 ls -l
-ls -l ./target
-ls -l ./target/lib
+ls -l ./cohort-evaluator-spark
+ls -l ./build
