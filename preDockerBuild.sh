@@ -17,4 +17,6 @@ mvn clean install -f cohort-parent -s .toolchain.maven.settings.xml
 
 ls -l
 ls -l ./cohort-evaluator-spark
+ls -l ./cohort-evaluator-spark/target
 ls -l ./build
+ls -l ./build/target
